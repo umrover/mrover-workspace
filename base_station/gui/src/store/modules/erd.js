@@ -2,6 +2,7 @@
 const state = {
   waypointList: [],
   odomFormat: "DM",
+  highlightedWaypoint: -1,
   clickPoint: {
     lat: 0,
     lon: 0
@@ -12,6 +13,7 @@ const state = {
 const getters = {
   waypointList: state => state.waypointList,
   odomFormat: state => state.odomFormat,
+  highlightedWaypoint: state => state.highlightedWaypoint,
   clickPoint: state => state.clickPoint
 }
 
@@ -23,6 +25,10 @@ const mutations = {
 
   setOdomFormat (commit, newOdomFormat) {
     state.odomFormat = newOdomFormat
+  },
+
+  setHighlightedWaypoint (commit, newWaypoint) {
+    state.highlightedWaypoint = newWaypoint
   },
 
   setClickPoint (commit, newClickPoint) {

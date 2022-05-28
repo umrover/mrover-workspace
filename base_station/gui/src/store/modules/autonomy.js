@@ -2,7 +2,9 @@
 const state = {
   route: [],
   waypointList: [],
+  highlightedWaypoint: -1,
   autonEnabled: false,
+  teleopEnabled: false,
   odomFormat: "DM",
   clickPoint: {
     lat: 0,
@@ -21,7 +23,9 @@ const state = {
 const getters = {
   route: state => state.route,
   waypointList: state => state.waypointList,
+  highlightedWaypoint: state => state.highlightedWaypoint,
   autonEnabled: state => state.autonEnabled,
+  teleopEnabled: state => state.teleopEnabled,
   odomFormat: state => state.odomFormat,
   clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,
@@ -44,8 +48,16 @@ const mutations = {
     state.autonEnabled = newAutonEnabled
   },
 
+  setTeleopMode (commit, newTeleopEnabled) {
+    state.teleopEnabled = newTeleopEnabled
+  },
+
   setWaypointList (commit, newList) {
     state.waypointList = newList
+  },
+
+  setHighlightedWaypoint (commit, newWaypoint) {
+    state.highlightedWaypoint = newWaypoint
   },
 
   setOdomFormat (commit, newOdomFormat) {

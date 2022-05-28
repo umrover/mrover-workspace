@@ -6,19 +6,18 @@ import serial
 import asyncio
 # import Adafruit_BBIO.UART as UART  # for beaglebone use only
 import numpy as np
-import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    NavStatus, ServoCmd, CarouselPosition, CarouselOpenLoopCmd, \
-    Heater, HeaterAutoShutdown
+    AutonLed, ServoCmd, Heater, Enable
 from enum import Enum
 
 
-class Auton_state(Enum):
-    ELSE = 0
-    DONE = 1
-    OFF = 2
+class LEDState(Enum):
+    RED = 0
+    GREEN = 1
+    BLUE = 2
+    NONE = 3
 
 
 # Mapping of LCM mosfet devices to actual mosfet devices
@@ -26,7 +25,7 @@ class Mosfet_devices(Enum):
     RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 3
+    RA_LASER = 1
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
@@ -61,13 +60,18 @@ class ScienceBridge():
             "THERMISTOR": self.thermistor_handler,
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
-            "CAROUSEL": self.carousel_handler,
             "HEATER": self.heater_state_handler,
             "AUTOSHUTOFF": self.heater_shutoff_handler
         }
-        self.last_openloop_cmd = -1
         self.max_error_count = 20
         self.sleep = .01
+        self.previous_auton_msg = "Default"
+
+        self.led_map = {
+            "Red": LEDState.RED,
+            "Blue": LEDState.BLUE,
+            "Green": LEDState.GREEN
+        }
 
     def __enter__(self):
         '''
@@ -95,6 +99,18 @@ class ScienceBridge():
         while(len(msg) < UART_TRANSMIT_MSG_LEN):
             msg += ","
         return msg
+
+    def uart_send(self, message):
+        message = self.add_padding(message)
+        print(message)
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf-8'))
+
+    def format_mosfet_message(self, device, enable):
+        mosfet_message = "$MOSFET,{dev},{en},"
+        return mosfet_message.format(dev=device, en=enable)
 
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
@@ -170,14 +186,6 @@ class ScienceBridge():
         '''
         print(msg)
 
-    def carousel_handler(self, msg, carousel_struct):
-        # msg format: <"$CAROUSEL,position>
-        try:
-            arr = msg.split(",")
-            carousel_struct.position = np.int8(arr[1])
-        except Exception as e:
-            print(e)
-
     def heater_state_handler(self, msg, struct):
         # msg format: <"$HEATER,device,enabled">
         try:
@@ -189,11 +197,11 @@ class ScienceBridge():
             print(e)
 
     def heater_shutoff_handler(self, msg, struct):
-        # msg format: <"$auto_shutoff,device,enabled">
+        # msg format: <"$AUTOSHUTOFF,device,enabled">
         try:
             arr = msg.split(",")
             enabled = bool(int(arr[1]))
-            struct.auto_shutdown_enabled = enabled
+            struct.enabled = enabled
         except Exception as e:
             print(e)
 
@@ -201,158 +209,56 @@ class ScienceBridge():
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
         print("Heater cmd callback")
         struct = Heater.decode(msg)
-        message = "$Mosfet,{device},{enable},"
-
-        # Heater/Nichromes mosfet devices 7, 8, and 9, so add 7 to get the appropriate mosfet
 
         translated_device = Heater_Map[struct.device]
-        message = message.format(device=translated_device,
-                                 enable=int(struct.enabled))
-
-        message = self.add_padding(message)
-        print(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-        pass
+        message = self.format_mosfet_message(translated_device, int(struct.enabled))
+        self.uart_send(message)
 
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
-        struct = HeaterAutoShutdown.decode(msg)
-        message = "$AutoShutoff,{enable}"
-        message = message.format(enable=int(struct.auto_shutdown_enabled))
-        message = self.add_padding(message)
-        print(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-        pass
+        struct = Enable.decode(msg)
+        message = "$AUTOSHUTOFF,{enable}"
+        message = message.format(enable=int(struct.enabled))
+        self.uart_send(message)
 
     def mosfet_transmit(self, channel, msg):
         print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
 
-        message = "$Mosfet,{device},{enable}"
         translated_device = Mosfet_Map[struct.device]
-
-        message = message.format(device=translated_device,
-                                 enable=int(struct.enable))
-        print(message)
-        message = self.add_padding(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        message = self.format_mosfet_message(translated_device, int(struct.enable))
+        self.uart_send(message)
         print("Mosfet Received")
         pass
 
-    def nav_status(self, channel, msg):  # TODO - fix make better
-        print("Received nav req")
-        # Off, Done, Else
+    def auton_led(self, channel, msg):  # TODO - fix make better
+        # Off, Done, On
+        struct = AutonLed.decode(msg)
+        try:
+            requested_state = self.led_map[struct.color]
+            print("Received new auton led request: Turning " + str(struct.color))
+        except KeyError:
+            requested_state = LEDState.NONE
+            print("Received invalid/Off auton led request: Turning OFF all colors")
 
-        struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable}"
-
-        # Off = Blue
-        if struct.nav_state_name == "Off":
-            print("navstatus off")
-            blue = message.format(device=Mosfet_devices.BLUE_LED.value, enable=1)
-            blue = self.add_padding(blue)
-            self.ser.write(bytes(blue, encoding='utf-8'))
-            prev = Auton_state.OFF
-        # Done = Flashing green
-        elif struct.nav_state_name == "Done":
-            print("navstatus Done")
-            # Flashing by turning on and off for 1 second intervals
-
-            NUMBER_OF_LED_BLINKS = 6
-
-            for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = message.format(device=Mosfet_devices.GREEN_LED.value,
-                                          enable=1)
-                green_on = self.add_padding(green_on)
-                self.ser.write(bytes(green_on, encoding='utf-8'))
-                time.sleep(1)
-                green_off = message.format(device=Mosfet_devices.GREEN_LED.value,
-                                           enable=0)
-                green_off = self.add_padding(green_off)
-                self.ser.write(bytes(green_off, encoding='utf-8'))
-                time.sleep(1)
-                prev = Auton_state.DONE
-        # Everytime else = Red
-        else:
-            print("navstatus else")
-            red = message.format(device=Mosfet_devices.RED_LED.value, enable=1)
-            red = self.add_padding(red)
-            self.ser.write(bytes(red, encoding='utf-8'))
-            prev = Auton_state.ELSE
-        time.sleep(1)
-        # Green should be in a finished state so no need to turn it off
-        if (prev != Auton_state.OFF):
-            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
-            green_off = self.add_padding(green_off)
-            self.ser.write(bytes(green_off, encoding='utf-8'))
-        if (prev != Auton_state.ELSE):
-            red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
-            red_off = self.add_padding(red_off)
-            self.ser.write(bytes(red_off, encoding='utf-8'))
+        led_message = "$LED,{led_color}".format(led_color=requested_state.value)
+        self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         struct = ServoCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$Servo,{angle0},{angle1},{angle2}"
+        message = "$SERVO,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
-        print(message)
-        message = self.add_padding(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-
-    def carousel_openloop_transmit(self, channel, msg):
-        struct = CarouselOpenLoopCmd.decode(msg)
-
-        if (self.last_openloop_cmd == struct.throttle):
-            return
-        print("Received Carousel (OL) Cmd")
-        self.last_openloop_cmd = struct.throttle
-        # parse data into expected format
-        message = "$OpenCarousel,{throttle}"
-        message = message.format(throttle=struct.throttle)
-        print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-
-    def carousel_closedloop_transmit(self, channel, msg):
-        self.last_openloop_cmd = -1
-        struct = CarouselPosition.decode(msg)
-        print("Received Carousel (CL) Cmd")
-        # parse data into expected format
-        message = "$Carousel,{position}"
-        message = message.format(position=struct.position)
-        print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        self.uart_send(message)
 
     async def receive(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
         triad = SpectralData()
-        carousel = CarouselPosition()
         heater = Heater()
-        heater_auto_shutdown = HeaterAutoShutdown()
+        heater_auto_shutdown = Enable()
 
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
@@ -388,9 +294,6 @@ class ScienceBridge():
                             elif (tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
-                            elif (tag == "CAROUSEL"):
-                                self.carousel_handler(msg, carousel)
-                                lcm.publish('/carousel_data', carousel.encode())
                             elif (tag == "HEATER"):
                                 self.heater_state_handler(msg, heater)
                                 lcm.publish('/heater_state_data', heater.encode())
@@ -415,10 +318,8 @@ def main():
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/nav_status", bridge.nav_status)
+        _lcm.subscribe("/auton_led", bridge.auton_led)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
-        _lcm.subscribe("/carousel_openloop_cmd", bridge.carousel_openloop_transmit)
-        _lcm.subscribe("/carousel_closedloop_cmd", bridge.carousel_closedloop_transmit)
         _lcm.subscribe("/heater_cmd", bridge.heater_transmit)
         _lcm.subscribe("/heater_auto_shutdown_cmd", bridge.heater_auto_transmit)
         print("properly started")

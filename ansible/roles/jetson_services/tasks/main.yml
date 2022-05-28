@@ -3,16 +3,17 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
+      - rover-jetson-auton-filter
+      - rover-jetson-auton-gps
+      - rover-jetson-auton-imu
+      - rover-jetson-auton-nav
+      - rover-jetson-auton-percep
       - rover-jetson-cameras
-      - rover-jetson-percep
-      - rover-jetson-filter
-      - rover-jetson-gps
       - rover-jetson-kinematics
-      - rover-jetson-nav
+      - rover-jetson-nucleo-bridge
       - rover-jetson-raman
       - rover-jetson-science-bridge
       - rover-jetson-teleop
-      - rover-jetson-nucleo-bridge
 
 - name: Copy environment variable definitions
   copy:
@@ -21,8 +22,8 @@
 
 - name: Install udev rules
   copy:
-      src: files/rover.rules
-      dest: /etc/udev/rules.d/10-rover.rules
+      src: files/99-usb-serial.rules
+      dest: /etc/udev/rules.d/99-usb-serial.rules
 
 - name: Reload systemd
   systemd: daemon_reload=yes
@@ -30,11 +31,11 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
+      - rover-jetson-auton-filter.service
+      - rover-jetson-auton-gps.service
+      - rover-jetson-auton-imu.service
       - rover-jetson-cameras.service
-      - rover-jetson-filter.service
-      - rover-jetson-gps.service
       - rover-jetson-kinematics.service
-      - rover-jetson-nav.service
+      - rover-jetson-nucleo-bridge.service
       - rover-jetson-raman.service
       - rover-jetson-science-bridge.service
-      - rover-jetson-nucleo-bridge.service

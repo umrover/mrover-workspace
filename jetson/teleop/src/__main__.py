@@ -5,12 +5,12 @@ from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
-                        AutonState, AutonDriveControl,
-
+                        Enable, AutonDriveControl,
+                        GUICameras, Cameras, Mission,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState,
-                        ReverseDrive)
+                        ArmControlState, ReverseDrive,
+                        Calibrate)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -35,16 +35,20 @@ def deadzone(magnitude, threshold):
 class Drive:
     def __init__(self, reverse: bool):
         self.auton_enabled = False
+        self.teleop_enabled = True
         self.reverse = reverse
 
     def reverse_callback(self, channel, msg):
         self.reverse = ReverseDrive.decode(msg).reverse
 
     def auton_enabled_callback(self, channel, msg):
-        self.auton_enabled = AutonState.decode(msg).is_auton
+        self.auton_enabled = Enable.decode(msg).enabled
+
+    def teleop_enabled_callback(self, channel, msg):
+        self.teleop_enabled = Enable.decode(msg).enabled
 
     def teleop_drive_callback(self, channel, msg):
-        if self.auton_enabled:
+        if self.auton_enabled or not self.teleop_enabled:
             return
 
         input = Joystick.decode(msg)
@@ -86,8 +90,8 @@ class Drive:
         input = AutonDriveControl.decode(msg)
 
         command = DriveVelCmd()
-        command.left = input.right_percent_velocity
-        command.right = input.left_percent_velocity
+        command.left = input.left_percent_velocity
+        command.right = input.right_percent_velocity
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 
@@ -115,6 +119,56 @@ def gimbal_control_callback(channel, msg):
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
 
+class Camera:
+    def __init__(self):
+        self.cameras = [-1, -1, -1, -1]
+
+        self.mission = ""
+
+    def update_cameras(self, channel, msg):
+        message = GUICameras.decode(msg)
+        incoming = message.port
+
+        if self.mission == 'Science':
+            num_to_update = 2
+        else:
+            num_to_update = 4
+
+        for i in range(num_to_update):
+            self.cameras[i] = incoming[i]
+
+        self.send_camera_cmd()
+
+    def update_ish_cameras(self, channel, msg):
+        if self.mission != 'Science':
+            return
+
+        message = GUICameras.decode(msg)
+
+        # If a camera is streamed to opposite port already
+        if message.port[0] == self.cameras[3]:
+            self.cameras[2] = message.port[1]
+        elif message.port[1] == self.cameras[2]:
+            self.cameras[3] = message.port[0]
+
+        # Otherwise, route normally
+        else:
+            self.cameras[2] = message.port[0]
+            self.cameras[3] = message.port[1]
+
+        self.send_camera_cmd()
+
+    def send_camera_cmd(self):
+        camera_msg = Cameras()
+        camera_msg.port = self.cameras
+
+        lcm_.publish('/cameras_cmd', camera_msg.encode())
+
+    def update_mission(self, channel, msg):
+        message = Mission.decode(msg)
+        self.mission = message.name
+
+
 class ArmControl:
     class ArmType(Enum):
         UNKNOWN = 0
@@ -122,16 +176,20 @@ class ArmControl:
         SA = 2
 
     def __init__(self):
-        self.arm_control_state = "off"
+        self.arm_control_state = "open-loop"
         self.arm_type = self.ArmType.UNKNOWN
+        self.slow_mode = False
 
     def arm_control_state_callback(self, channel, msg):
-        self.arm_control_state = ArmControlState.decode(msg)
+        self.arm_control_state = ArmControlState.decode(msg).state
         if (self.arm_control_state != "open-loop"):
             self.send_ra_kill()
             self.send_sa_kill()
 
     def ra_control_callback(self, channel, msg):
+        if (self.arm_control_state != "open-loop"):
+            return
+
         self.arm_type = self.ArmType.RA
 
         xboxData = Xbox.decode(msg)
@@ -143,19 +201,30 @@ class ArmControl:
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
+        if self.slow_mode:
+            # slow down joints a, c, e, and f
+            motor_speeds[0] *= 0.5
+            motor_speeds[2] *= 0.5
+            motor_speeds[4] *= 0.5
+            motor_speeds[5] *= 0.5
+
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
 
-        lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+        lcm_.publish('/ra_open_loop_cmd', openloop_msg.encode())
 
         hand_msg = HandCmd()
         hand_msg.finger = xboxData.y - xboxData.a
         hand_msg.grip = xboxData.b - xboxData.x
 
-        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+        lcm_.publish('/hand_open_loop_cmd', hand_msg.encode())
 
     def sa_control_callback(self, channel, msg):
+        if (self.arm_control_state != "open-loop"):
+            return
+
         self.arm_type = self.ArmType.SA
+
         xboxData = Xbox.decode(msg)
 
         saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
@@ -166,44 +235,66 @@ class ArmControl:
         openloop_msg = SAOpenLoopCmd()
         openloop_msg.throttle = saMotorsData
 
-        lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
+        lcm_.publish('/sa_open_loop_cmd', openloop_msg.encode())
 
         foot_msg = FootCmd()
         foot_msg.scoop = xboxData.a - xboxData.y
         foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
-        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+        lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
 
     def send_ra_kill(self):
-        if self.arm_type is not self.ArmType.RA:
+        if self.arm_type != self.ArmType.RA:
             return
 
         arm_motor = RAOpenLoopCmd()
         arm_motor.throttle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        lcm_.publish('/ra_openloop_cmd', arm_motor.encode())
+        lcm_.publish('/ra_open_loop_cmd', arm_motor.encode())
 
         hand_msg = HandCmd()
         hand_msg.finger = 0
         hand_msg.grip = 0
-        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+        lcm_.publish('/hand_open_loop_cmd', hand_msg.encode())
 
     def send_sa_kill(self):
-        if self.arm_type is not self.ArmType.SA:
+        if self.arm_type != self.ArmType.SA:
             return
 
         sa_motor = SAOpenLoopCmd()
         sa_motor.throttle = [0.0, 0.0, 0.0, 0.0]
 
-        lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
+        lcm_.publish('/sa_open_loop_cmd', sa_motor.encode())
 
         foot_msg = FootCmd()
         foot_msg.scoop = 0
         foot_msg.microscope_triad = 0
-        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+        lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
+
+    def ra_calibration_callback(self, channel, msg):
+        if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
+            return
+
+        ra_openloop_msg = RAOpenLoopCmd()
+        ra_openloop_msg.throttle = [0, 1, 0, 0, 0, 0]
+
+        lcm_.publish('/ra_open_loop_cmd', ra_openloop_msg.encode())
+
+    def sa_calibration_callback(self, channel, msg):
+        if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
+            return
+
+        sa_openloop_msg = SAOpenLoopCmd()
+        sa_openloop_msg.throttle = [0, 1, 0, 0]
+
+        lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
+
+    def arm_slow_mode_callback(self, channel, msg):
+        self.slow_mode = Enable.decode(msg).enabled
 
 
 def main():
     arm = ArmControl()
     drive = Drive(reverse=False)
+    camera = Camera()
 
     def connection_state_changed(c, _):
         global connection
@@ -220,7 +311,8 @@ def main():
     hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
 
-    lcm_.subscribe("/auton", drive.auton_enabled_callback)
+    lcm_.subscribe("/auton_enabled", drive.auton_enabled_callback)
+    lcm_.subscribe("/teleop_enabled", drive.teleop_enabled_callback)
     lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
     lcm_.subscribe("/drive_control", drive.teleop_drive_callback)
     lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
@@ -228,6 +320,15 @@ def main():
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
+    lcm_.subscribe('/ra_b_calib_data', arm.ra_calibration_callback)
+    lcm_.subscribe('/sa_b_calib_data', arm.sa_calibration_callback)
+    lcm_.subscribe('/arm_slow_mode', arm.arm_slow_mode_callback)
+
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+
+    # Subscribe to updated GUI camera channels
+    lcm_.subscribe('/cameras_control_ish', camera.update_ish_cameras)
+    lcm_.subscribe('/cameras_control', camera.update_cameras)
+    lcm_.subscribe('/cameras_mission', camera.update_mission)
 
     run_coroutines(hb.loop(), lcm_.loop())
