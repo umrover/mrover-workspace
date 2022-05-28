@@ -30,6 +30,7 @@
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
+      <ESArmToggles/>
     </div>
     <div class="box drive light-bg">
       <DriveControls/>
@@ -53,7 +54,8 @@ import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
-import DriveVelDataV from './DriveVelDataV.vue' 
+import DriveVelDataV from './DriveVelDataV.vue'
+import ESArmToggles from './ESArmToggles.vue'
 
 export default {
   name: 'RATask',
@@ -127,7 +129,8 @@ export default {
     DriveControls,
     IKControls,
     PDBFuse,
-    DriveVelDataV
+    DriveVelDataV,
+    ESArmToggles
   }
 }
 </script>
