@@ -7,6 +7,3 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f582", ATTRS{iProd
 SUBSYSTEM=="usb", ATTRS{idVendor}=="a16f", ATTRS{idProduct}=="0304", SYMLINK+="microscope"
 
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", SYMLINK+="raman"
-
-SUBSYSTEM=="usb", ATTRS{idVendor}=="32e4", ATTRS{idProduct}=="9601", ATTRS{serial}=="2020032501", SYMLINK+="usbcam"
-
