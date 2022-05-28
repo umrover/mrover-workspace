@@ -13,7 +13,7 @@ from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
 from enum import Enum
 
 
-class LED_state(Enum):
+class LEDState(Enum):
     RED = 0
     GREEN = 1
     BLUE = 2
@@ -68,9 +68,9 @@ class ScienceBridge():
         self.previous_auton_msg = "Default"
 
         self.led_map = {
-            "Red": LED_state.RED,
-            "Blue": LED_state.BLUE,
-            "Green": LED_state.GREEN
+            "Red": LEDState.RED,
+            "Blue": LEDState.BLUE,
+            "Green": LEDState.GREEN
         }
 
     def __enter__(self):
@@ -238,7 +238,7 @@ class ScienceBridge():
             requested_state = self.led_map[struct.color]
             print("Received new auton led request: Turning " + str(struct.color))
         except KeyError:
-            requested_state = LED_state.NONE
+            requested_state = LEDState.NONE
             print("Received invalid/Off auton led request: Turning OFF all colors")
 
         led_message = "$LED,{led_color}".format(led_color=requested_state.value)

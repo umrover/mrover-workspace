@@ -8,6 +8,7 @@
       <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})">Search</button>
       <button v-bind:class="[waypoint.gate ? 'green' : 'red']" v-on:click="$emit('toggleGate', {'list': list, 'index': index})">Gate</button>
       <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">Delete</button>
+      <button v-bind:class="[index===highlightedWaypoint ? 'green' : 'red']" v-on:click="$emit('find', {'list': list, 'index': index})">Find</button>
     </div>
     <div class="location">
       <div>
@@ -48,7 +49,8 @@ export default {
 
   computed: {
     ...mapGetters('autonomy', {
-      odom_format: 'odomFormat'
+      odom_format: 'odomFormat',
+      highlightedWaypoint: 'highlightedWaypoint'
     }),
 
     min_enabled: function() {
