@@ -85,7 +85,7 @@ export default {
     })
 
     this.$parent.subscribe('/heater_auto_shutdown_data', (msg) => {
-      this.autoShutdownEnabled = msg.auto_shutdown_enabled
+      this.autoShutdownEnabled = msg.enabled
     })
   },
 
