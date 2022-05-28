@@ -79,8 +79,8 @@ export default {
 
     setLimit: function(enabled) {
       this.$parent.publish("/scoop_limit_switch_enable_cmd", {
-        'type': 'ScoopLimitSwitchEnable',
-        'enable': enabled
+        'type': 'Enable',
+        'enabled': enabled
       })
     }
   }

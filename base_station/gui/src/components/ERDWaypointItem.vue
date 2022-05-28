@@ -8,11 +8,14 @@
     </div>
     <div class="buttons">
       <button class="red" v-on:click="$emit('delete', {'index': index})">X</button>
+      <button v-bind:class="[index===highlightedWaypoint ? 'green' : 'red']" v-on:click="$emit('find', {'index': index})">Find</button>
     </div>
   </div>
 </template>
 
 <script>
+import {mapGetters} from 'vuex';
+
 export default {
 
   props: {
@@ -24,6 +27,12 @@ export default {
       type: Number,
       required: true
     }
+  },
+  
+  computed: {
+    ...mapGetters('erd', {
+      highlightedWaypoint: 'highlightedWaypoint'
+    }),
   }
 
 }
@@ -67,9 +76,10 @@ export default {
   }
 
   button {
-    width: 20px;
-    height: 20px;
-    padding: 0px;
+    width: auto;
+    height: auto;
+    padding: 7px;
+    font-weight: bold;
   }
 
   p {

@@ -111,7 +111,7 @@ Format of the data string
 Writes NMEA like messages over UART to the Nucleo in order to turn the auto shutdown feature for heater on or off. 
 #### LCM Channels Publishing/Subscribed To 
 **Heater Command [subscriber]** \
-Messsages: [HeaterAutoShutdown.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/HeaterAutoShutdown.lcm) "/heater_auto_shutdown_cmd" \
+Messsages: [Enable.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/Enable.lcm) "/heater_auto_shutdown_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
@@ -124,7 +124,7 @@ Format of the UART NMEA command
 Reads data on whether or not the heater auto shutdown feature is on.
 #### LCM Channels Publishing/Subscribed To
 **Heater Auto Shutdown Data [Publisher]** \
-Messages: [HeaterAutoShutdown.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/HeaterAutoShutdown.lcm) "/heater_auto_shutdown_data" \
+Messages: [Enable.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/Enable.lcm) "/heater_auto_shutdown_data" \
 Publishers: jetson/science_bridge\
 Subscribers: jetson/teleop
 #### UART Message
