@@ -454,7 +454,7 @@ export default class NavSimulator extends Vue {
 
     /* Set up publishing LCMs */
     this.intervalLcmPublish = window.setInterval(() => {
-      this.publish('/auton_enabled', { type: 'Enable', is_auton: this.autonOn }, false);
+      this.publish('/auton_enabled', { type: 'Enable', enabled: this.autonOn }, false);
 
       if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
