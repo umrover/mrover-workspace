@@ -1,4 +1,4 @@
- from rover_msgs import Cameras, Mission
+from rover_msgs import Cameras, Mission
 import lcm
 from enum import Enum
 
