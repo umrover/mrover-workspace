@@ -16,7 +16,7 @@
       <Raman v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control_ish'"/>
+      <Cameras v-bind:numCams="2" v-bind:mission="'Science'" v-bind:channel="'/cameras_control_ish'"/>
     </div>
     <div class = "box light-bg chlorophyll">
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/>
@@ -135,7 +135,7 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/carousel_data', 'type': 'CarouselPosition'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
-        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
+        {'topic': '/heater_auto_shutdown_data', 'type': 'Enable'},
       ]
     )
   },
