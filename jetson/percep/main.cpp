@@ -131,14 +131,18 @@ int main() {
         DoubleTrack(&detector.getAlvarParams()->minOtsuStdDev).setup("minOtsuStdDev", "ARUCO Debug", 20);
         DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
 
-        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
-                                    "queue ! videoconvert ! x264enc tune=zerolatency bitrate=1000000 speed-preset=superfast !"
-                                    "rtph264pay ! udpsink host=127.0.0.1 port=5000";
+    #endif
 
-        cv::Size streamSize(640, 360);
+    #if AR_DETECTION && STREAM_ZED
+        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
+                                    "queue ! videoconvert ! x264enc tune=zerolatency bitrate=500000 speed-preset=superfast !"
+                                    "rtph264pay ! udpsink host=10.0.0.1 port=5002";
+
+        cv::Size streamSize(256, 144);
         cv::VideoWriter writer(gstLaunch, 0, 30, streamSize);
         cv::Mat send(streamSize, CV_8UC3);
-    #endif
+
+    #endif 
 
     /* --- Main Processing Stuff --- */
     while (true) {
@@ -179,17 +183,17 @@ int main() {
 #if AR_RECORD
         cam.record_ar(rgb);
 #endif
-#if PERCEPTION_DEBUG
+#if STREAM_ZED
         cv::Mat bgr, sendMat;
         cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
-        cv::resize(bgr, sendMat, cv::Size{640, 360});
+        cv::resize(bgr, sendMat, streamSize);
         writer.write(sendMat);
 #endif
 
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
 
 #if PERCEPTION_DEBUG && AR_DETECTION
-//        cv::imshow("depth", depth_img);
+        cv::imshow("depth", depth_img);
         cv::waitKey(1);
 #endif
 
