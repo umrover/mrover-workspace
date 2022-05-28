@@ -27,11 +27,11 @@
   systemd: name={{item}} enabled=yes
   with_items:
     - rover-base_station_gui.service
-    - rover-base_station_gstreamer@usbcam0.service
-    - rover-base_station_gstreamer@usbcam1.service
-    - rover-base_station_gstreamer@zed.service
+    - rover-base_station_gstreamer@5000.service
+    - rover-base_station_gstreamer@5001.service
+    - rover-base_station_gstreamer@5002.service
     - rover-lcm_bridge_server.service
     - rover-base_station_kineval.service
-    - rover-base_station_gstreamer@usbcam0.timer
-    - rover-base_station_gstreamer@usbcam1.timer
-    - rover-base_station_gstreamer@zed.timer
+    - rover-base_station_gstreamer@5000.timer
+    - rover-base_station_gstreamer@5001.timer
+    - rover-base_station_gstreamer@5002.timer
