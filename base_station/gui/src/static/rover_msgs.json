@@ -422,12 +422,6 @@
             "enabled"
         ]
     ],
-    "HeaterAutoShutdown": [
-        [
-            "boolean",
-            "auto_shutdown_enabled"
-        ]
-    ],
     "IMUData": [
         [
             "double",
@@ -810,12 +804,6 @@
             "joint_e"
         ]
     ],
-    "ScoopLimitSwitchEnable": [
-        [
-            "boolean",
-            "enable"
-        ]
-    ],
     "SensorPackage": [
         [
             "double",
@@ -898,12 +886,6 @@
         [
             "int16_t",
             "value"
-        ]
-    ],
-    "ScoopLimitSwitchEnabled": [
-        [
-            "boolean",
-            "enable"
         ]
     ],
     "Signal": [],

@@ -176,8 +176,9 @@ class ArmControl:
         SA = 2
 
     def __init__(self):
-        self.arm_control_state = "off"
+        self.arm_control_state = "open-loop"
         self.arm_type = self.ArmType.UNKNOWN
+        self.slow_mode = False
 
     def arm_control_state_callback(self, channel, msg):
         self.arm_control_state = ArmControlState.decode(msg).state
@@ -199,6 +200,13 @@ class ArmControl:
                         quadratic(deadzone(xboxData.right_js_x, 0.15)),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
+
+        if self.slow_mode:
+            # slow down joints a, c, e, and f
+            motor_speeds[0] *= 0.5
+            motor_speeds[2] *= 0.5
+            motor_speeds[4] *= 0.5
+            motor_speeds[5] *= 0.5
 
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
@@ -279,6 +287,9 @@ class ArmControl:
 
         lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
 
+    def arm_slow_mode_callback(self, channel, msg):
+        self.slow_mode = Enable.decode(msg).enabled
+
 
 def main():
     arm = ArmControl()
@@ -311,6 +322,7 @@ def main():
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/ra_b_calib_data', arm.ra_calibration_callback)
     lcm_.subscribe('/sa_b_calib_data', arm.sa_calibration_callback)
+    lcm_.subscribe('/arm_slow_mode', arm.arm_slow_mode_callback)
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
