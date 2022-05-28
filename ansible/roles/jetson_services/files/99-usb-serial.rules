@@ -5,3 +5,6 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="g
 SUBSYSTEM=="tty", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f582", ATTRS{iProduct}=="ZED", SYMLINK+="zed"
 
 SUBSYSTEM=="usb", ATTRS{idVendor}=="a16f", ATTRS{idProduct}=="0304", SYMLINK+="microscope"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", SYMLINK+="raman"
+
