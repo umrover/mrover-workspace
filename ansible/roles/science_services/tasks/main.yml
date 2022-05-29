@@ -4,10 +4,8 @@
     dest: "/etc/systemd/system/{{ item }}"
   with_items:
     - rover-lcm-bridge-server.service
-    - rover-science-gstreamer.service
-    - rover-science-gstreamer-2.service
-    - rover-science-gstreamer.timer
-    - rover-science-gstreamer-2.timer
+    - rover-science-gstreamer@.service
+    - rover-science-gstreamer@.timer
     - rover-science-gui.service
     - rover-science-raman.service
 
@@ -23,9 +21,9 @@
   systemd: name={{ item }} enabled=yes
   with_items:
     - rover-lcm-bridge-server.service
-    - rover-science-gstreamer.service
-    - rover-science-gstreamer-2.service
-    - rover-science-gstreamer.timer
-    - rover-science-gstreamer-2.timer
+    - rover-science-gstreamer@5000.service
+    - rover-science-gstreamer@5001.service
+    - rover-science-gstreamer@5000.timer
+    - rover-science-gstreamer@5001.timer
     - rover-science-gui.service
     - rover-science-raman.service
