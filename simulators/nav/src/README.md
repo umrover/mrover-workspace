@@ -54,7 +54,7 @@ The `utils` directory contains code that is reused throughout the project. This 
 
 <!----------------------------- Related Documents ---------------------------->
 ## Important Note
-* ObstacleMessage is ahead of nav and perception right as of May 28, 2022. This version is sending the bounding box of each obstacle via ObstacleList.lcm in the /obstacle_list channel
+* ObstacleMessage is ahead of nav and perception right as of May 28, 2022. This version is sending the bounding box of each obstacle via ObstacleList.lcm in the /obstacle_list channel. As long as when running the 2d sim, obstacle is OFF it doesn't cause the sim the crash
 ---
 
 <!----------------------------- Related Documents ---------------------------->
