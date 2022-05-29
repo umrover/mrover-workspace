@@ -4,3 +4,4 @@ phoenix=False
 
 [pip_deps]
 jetson=False
+beaglebone=True
