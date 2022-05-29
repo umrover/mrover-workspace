@@ -44,30 +44,30 @@
     <tbody>
       <tr>
         <td class = "tableElement">Spec 0</td>
-        <td class = "tableElement">{{spectral_data.d0_1}}</td>
-        <td class = "tableElement">{{spectral_data.d0_2}}</td>
-        <td class = "tableElement">{{spectral_data.d0_3}}</td>
-        <td class = "tableElement">{{spectral_data.d0_4}}</td>
-        <td class = "tableElement">{{spectral_data.d0_5}}</td>
-        <td class = "tableElement">{{spectral_data.d0_6}}</td>
+        <td class = "tableElement">{{ spectral_data.d0_1 }}</td>
+        <td class = "tableElement">{{ spectral_data.d0_2 }}</td>
+        <td class = "tableElement">{{ spectral_data.d0_3 }}</td>
+        <td class = "tableElement">{{ spectral_data.d0_4 }}</td>
+        <td class = "tableElement">{{ spectral_data.d0_5 }}</td>
+        <td class = "tableElement">{{ spectral_data.d0_6 }}</td>
       </tr>
       <tr>
         <td class = "tableElement">Spec 1</td>
-        <td class = "tableElement">{{spectral_data.d1_1}}</td>
-        <td class = "tableElement">{{spectral_data.d1_2}}</td>
-        <td class = "tableElement">{{spectral_data.d1_3}}</td>
-        <td class = "tableElement">{{spectral_data.d1_4}}</td>
-        <td class = "tableElement">{{spectral_data.d1_5}}</td>
-        <td class = "tableElement">{{spectral_data.d1_6}}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_1) }}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_2) }}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_3) }}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_4) }}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_5) }}</td>
+        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_6) }}</td>
       </tr>
       <tr>
         <td class = "tableElement">Spec 2</td>
-        <td class = "tableElement">{{spectral_data.d2_1}}</td>
-        <td class = "tableElement">{{spectral_data.d2_2}}</td>
-        <td class = "tableElement">{{spectral_data.d2_3}}</td>
-        <td class = "tableElement">{{spectral_data.d2_4}}</td>
-        <td class = "tableElement">{{spectral_data.d2_5}}</td>
-        <td class = "tableElement">{{spectral_data.d2_6}}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_1) }}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_2) }}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_3) }}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_4) }}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_5) }}</td>
+        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_6) }}</td>
       </tr>
     </tbody>
     </table>
@@ -114,6 +114,14 @@ export default {
         'device': id,
         'enable': enabled
       })
+    },
+
+    spectral_1_conversion: function(sensor_reading) {
+      return (1 / 0.94) / (sensor_reading - 23.28)
+    },
+
+    spectral_2_conversion: function(sensor_reading) {
+      return (1 / 0.9969) / (sensor_reading + 32.8575)
     }
   },
   components: {
