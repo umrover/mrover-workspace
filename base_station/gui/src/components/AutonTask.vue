@@ -45,7 +45,7 @@
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box cameras light-bg">
-      <AutonCameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
+      <Cameras v-bind:numCams="2" v-bind:mission="'Auton'" v-bind:channel="'/cameras_control'"/>
     </div>
   </div>
 
@@ -54,7 +54,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import RoverMap from './AutonRoverMap.vue'
-import AutonCameras from './AutonCameras.vue'
+import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
@@ -284,7 +284,7 @@ export default {
 
   components: {
     RoverMap,
-    AutonCameras,
+    Cameras,
     CommIndicator,
     ArmControls,
     DriveControls,
