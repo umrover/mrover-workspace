@@ -190,7 +190,7 @@ void TagDetector::updateDetectedTagInfo(
             } else {
                 // use Euclidean method to calculate distance, convert to meters
                 const float MM_TO_M = 0.001f;
-                outArTag.distance = std::sqrt(x * x + y * y + z * z) * MM_TO_M;
+                outArTag.distance = std::sqrt(x * x + z * z) * MM_TO_M;
                 outArTag.bearing = std::atan2(x, z) * 180.0 / PI;
                 outArTag.id = tag.id;
             }
