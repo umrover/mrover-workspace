@@ -117,11 +117,11 @@ export default {
     },
 
     spectral_1_conversion: function(sensor_reading) {
-      return (1 / 0.94) / (sensor_reading - 23.28)
+      return (1 / 0.94) * (sensor_reading - 23.28)
     },
 
     spectral_2_conversion: function(sensor_reading) {
-      return (1 / 0.9969) / (sensor_reading + 32.8575)
+      return (1 / 0.9969) * (sensor_reading + 32.8575)
     }
   },
   components: {
