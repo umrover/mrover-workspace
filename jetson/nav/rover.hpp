@@ -69,6 +69,8 @@ public:
 
     PidLoop& bearingPid();
 
+    PidLoop& driveBearingPid();
+
     [[nodiscard]] double longMeterInMinutes() const;
 
     [[nodiscard]] NavState const& currentState() const;
@@ -104,6 +106,9 @@ private:
 
     // The pid loop for turning.
     PidLoop mBearingPid;
+
+    // The pid loop for turning while driving
+    PidLoop mDriveBearingPid;
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

@@ -116,18 +116,15 @@ NavState SearchStateMachine::executeDriveToTarget() {
             return NavState::Search;
         }
     } else {
-        if (leftTarget.id >= 0 && rightTarget.id >= 0) {
-            if (leftTarget.id == lastWaypoint.id) {
-                distance = leftTarget.distance;
-                bearing = leftTarget.bearing + currentBearing;
-            } else {
-                distance = rightTarget.distance;
-                bearing = rightTarget.bearing + currentBearing;
-            }
-        } else if (leftTarget.id >= 0) {
+        //not gate (AR tag)
+        if (leftTarget.id == lastWaypoint.id) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
-        } else {
+        } else if (rightTarget.id == lastWaypoint.id){
+            distance = rightTarget.distance;
+            bearing = rightTarget.bearing + currentBearing;
+        }
+        else {
             std::cerr << "Lost target" << std::endl;
             return NavState::Search;
         }

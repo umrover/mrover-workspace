@@ -29,9 +29,17 @@ void Environment::setTargets(TargetList const& targets) {
         mLeftTargetBearing.push(mTargetLeft.get().bearing);
         mLeftTargetDistance.push(mTargetLeft.get().distance);
     }
+    else{
+        mLeftTargetDistance.reset();
+        mLeftTargetBearing.reest();
+    }
     if (mTargetRight.isValid()){
         mRightTargetBearing.push(mTargetRight.get().bearing);
         mRightTargetDistance.push(mTargetRight.get().distance);
+    }
+    else{
+        mRightTargetDistance.reset();
+        mRightTargetBearing.reset();
     }
     
 }
