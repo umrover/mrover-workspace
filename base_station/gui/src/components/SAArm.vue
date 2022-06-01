@@ -5,9 +5,6 @@
       <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
       <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
     </div>
-    <div class="keyboard">
-      <GimbalControls/>
-    </div>
     <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode !== "calibrating"'>
       Joint B not calibrated!
       <button v-on:click="startCalibration()">Calibrate</button>
@@ -39,7 +36,6 @@
 
 <script>
 import Checkbox from './Checkbox.vue'
-import GimbalControls from './GimbalControls.vue'
 
 let interval;
 
@@ -333,8 +329,7 @@ export default {
   },
 
   components: {
-    Checkbox,
-    GimbalControls
+    Checkbox
   }
 }
 </script>
