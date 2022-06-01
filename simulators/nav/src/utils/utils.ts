@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 /* This file contains utility functions used throughout the application. */
 
 import { ZED, Zscores } from './constants';
@@ -8,7 +10,9 @@ import {
   OdomFormat,
   Point2D,
   Speeds,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  Obstacle,
+  ObstacleField
 } from './types';
 
 /**************************************************************************************************
@@ -516,4 +520,27 @@ export function randnBm(min, max, skew):number {
     num += min;
   }
   return num;
+}
+
+export function obstacleFieldToBoundingBox(obsOld:ObstacleField, currOdom:Odom):Obstacle {
+  const [dist, bear]:[number, number] = calcDistAndBear(obsOld.odom, currOdom);
+  const xPlusSize = (dist * Math.sin(bear)) + obsOld.size;
+  const xMinusSize = (dist * Math.sin(bear)) - obsOld.size;
+  const yCommon = 0;
+  const zCommon = dist * Math.cos(bear);
+  const bottomLeftCoordMeters = [
+    bear > 2 * Math.PI ? xMinusSize : xPlusSize,
+    yCommon,
+    zCommon
+  ];
+
+  const topRightCoordMeters = [
+    bear > 2 * Math.PI ? xPlusSize : xMinusSize,
+    yCommon,
+    zCommon
+  ];
+  return {
+    bottom_left_coordinate_meters: bottomLeftCoordMeters,
+    top_right_coordinate_meters: topRightCoordMeters
+  };
 }

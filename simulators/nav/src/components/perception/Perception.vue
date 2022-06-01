@@ -17,11 +17,11 @@ import {
   ArTag,
   FieldOfViewOptions,
   Gate,
-  Obstacle,
   ObstacleMessage,
   Odom,
   TargetListMessage,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  ObstacleField
 } from '../../utils/types';
 import ObstacleDetector from './obstacle_detector';
 import TargetDetector from './target_detector';
@@ -56,7 +56,7 @@ export default class Perception extends Vue {
   private readonly gates!:Gate[];
 
   @Getter
-  private readonly obstacles!:Obstacle[];
+  private readonly obstacles!:ObstacleField[];
 
   @Getter
   private readonly simulatePercep!:boolean;
