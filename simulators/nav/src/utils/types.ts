@@ -68,7 +68,7 @@ export interface FieldState {
   centerOdom:Odom;
   falseArTags:ArTag[];
   gates:Gate[];
-  obstacles:Obstacle[];
+  obstacles:ObstacleField[];
   referencePoints:Odom[];
   repeaterLoc:Odom|null;
   size:number;
@@ -124,19 +124,31 @@ export interface NavStatus {
 
 
 /* Interface for representing obstacles on the field. */
-export interface Obstacle {
+export interface ObstacleField {
   odom:Odom;
   size:number; /* meters */
 }
 
-
-/* Interface representing the Obstacle LCM. This must be the same as the
-   Obstacle LCM. */
-export interface ObstacleMessage {
-  distance:number; /* meters from rover */
-  bearing:number; /* degrees from rover */
+/* Type representing the Obstacle LCM. This must be the same as the
+  Obstacle LCM. +x is to the right of camera, +y is down from camera,
+  +z is forward (out) from the camera */
+export interface Obstacle {
+  bottom_left_coordinate_meters:number[];
+  top_right_coordinate_meters:number[];
 }
 
+// /* Interface representing the Obstacle LCM. This must be the same as the
+//    Obstacle LCM. */
+// export interface ObstacleOld {
+//   distance:number; /* meters from rover */
+//   bearing:number; /* degrees from rover */
+//   size:number;    /* meters */
+// }
+
+export type ObstacleMessage = {
+  numObstacles:number;
+  obstacles:Obstacle[];
+}
 
 /* Interface representing the options for drawing obstacles used in the
    DrawModule component. */
@@ -271,13 +283,13 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
-  enableLCM:boolean;
-  enableFOVView:boolean;
   enableProjectedPoints:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
   noiseFalsePosPercent:number;
   maxFalsePos:number;
+  enableLCM:boolean;
+  enableFOVView:boolean;
 }
 
 
