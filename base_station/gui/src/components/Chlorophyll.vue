@@ -53,21 +53,21 @@
       </tr>
       <tr>
         <td class = "tableElement">Spec 1</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_1).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_2).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_3).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_4).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_5).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_1_conversion(spectral_data.d1_6).toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_1.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_2.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_3.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_4.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_5.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d1_6.toFixed(0) }}</td>
       </tr>
       <tr>
         <td class = "tableElement">Spec 2</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_1).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_2).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_3).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_4).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_5).toFixed(0) }}</td>
-        <td class = "tableElement">{{ spectral_2_conversion(spectral_data.d2_6).toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_1.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_2.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_3.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_4.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_5.toFixed(0) }}</td>
+        <td class = "tableElement">{{ spectral_data.d2_6.toFixed(0) }}</td>
       </tr>
     </tbody>
     </table>
@@ -114,14 +114,6 @@ export default {
         'device': id,
         'enable': enabled
       })
-    },
-
-    spectral_1_conversion: function(sensor_reading) {
-      return (1 / 0.94) * (sensor_reading - 23.28)
-    },
-
-    spectral_2_conversion: function(sensor_reading) {
-      return (1 / 0.9969) * (sensor_reading + 32.8575)
     }
   },
   components: {
