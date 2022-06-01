@@ -28,16 +28,24 @@ export default {
 <style scoped>
    
   .wrap {
-      padding: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
-      border: none;
-      margin: -45px 0px 0px 0px;
-      grid-template-rows: auto;
+    padding: 5px;
+    border: none;
+    grid-template-rows: auto;
   }
 
   .wrap p {
     display: inline;
+  }
+
+  h5 {
+    padding: 0;
+    padding-top: 5px;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
   }
 
 </style>

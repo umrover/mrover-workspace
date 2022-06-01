@@ -4,26 +4,26 @@
   <div class="wrap">
     <div>
       <h5>IMU</h5>
-      <p>accel_x_g: {{ IMU.accel_x_g }}</p>
-      <p>accel_y_g: {{ IMU.accel_y_g }}</p>
-      <p>accel_z_g: {{ IMU.accel_z_g }}</p>
-      <p>gyro_x_dps: {{ IMU.gyro_x_dps }}</p>
-      <p>gyro_y_dps: {{ IMU.gyro_y_dps }}</p>
-      <p>gyro_z_dps: {{ IMU.gyro_z_dps }}</p>
-      <p>mag_x_uT: {{ IMU.mag_x_uT }}</p>
-      <p>mag_y_uT: {{ IMU.mag_y_uT  }}</p>
-      <p>mag_z_uT: {{ IMU.mag_z_uT }}</p>
-      <p>roll_rad: {{ IMU.roll_rad }}</p>
-      <p>pitch_rad: {{ IMU.pitch_rad}}</p>
-      <p>yaw_rad: {{ IMU.yaw_rad }}</p>
-      <p>bearing_deg:{{ IMU.bearing_deg.toFixed(2) }}</p>
+      <p>accel_x_g: {{ IMU.accel_x_g }}<br/>
+        accel_y_g: {{ IMU.accel_y_g }}<br/>
+        accel_z_g: {{ IMU.accel_z_g }}<br/>
+        gyro_x_dps: {{ IMU.gyro_x_dps }}<br/>
+        gyro_z_dps: {{ IMU.gyro_z_dps }}<br/>
+        gyro_y_dps: {{ IMU.gyro_y_dps }}<br/>
+        mag_x_uT: {{ IMU.mag_x_uT }}<br/>
+        mag_y_uT: {{ IMU.mag_y_uT  }}<br/>
+        mag_z_uT: {{ IMU.mag_z_uT }}<br/>
+        roll_rad: {{ IMU.roll_rad }}<br/>
+        pitch_rad: {{ IMU.pitch_rad}}<br/>
+        yaw_rad: {{ IMU.yaw_rad }}<br/>
+        bearing_deg:{{ IMU.bearing_deg.toFixed(2) }}</p>
     </div>
     <div>
       <h5>Calibration</h5>
-      <p>sys: {{ IMU.calibration_sys}}</p>
-      <p>gyro: {{ IMU.calibration_gyro }}</p>
-      <p>accel: {{ IMU.calibration_accel}}</p>
-      <p>mag: {{ IMU.calibration_mag }}</p>
+      <p>sys: {{ IMU.calibration_sys}}<br/>
+        gyro: {{ IMU.calibration_gyro }}<br/>
+        accel: {{ IMU.calibration_accel}}<br/>
+        mag: {{ IMU.calibration_mag }}</p>
     </div>
   </div>
 </div>
@@ -54,9 +54,7 @@ export default {
   }
 
   .wrap {
-      padding: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
+      padding: 5px;
       border: none;
       grid-template-rows: auto;
   }
@@ -65,14 +63,20 @@ export default {
     display: inline;
   }
 
-  .p {
-    margin: 0;
-    padding: 0;
-  }
-
-  .h3{
+  h3{
     padding: 0px;
     margin: 0px;
+  }
+
+  h5 {
+    padding: 0;
+    padding-top: 5px;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
   }
 
 </style>
