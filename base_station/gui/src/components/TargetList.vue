@@ -1,10 +1,10 @@
 <template>
   <div class="wrap">
     <div>
-      <h5>Target 1</h5>
-      <p>Bearing: {{this.TargetList[0].bearing}}<br/>;Distance: {{this.TargetList[0].distance}}<br/>;id: {{this.TargetList[0].id}}</p>
-      <h5>Target 2</h5>
-      <p>Bearing: {{this.TargetList[1].bearing}}<br/>;Distance: {{this.TargetList[1].distance}}<br/>;id: {{this.TargetList[1].id}}</p>
+    <p>Target 1:
+        Bearing: {{this.TargetList[0].bearing}} &nbsp;Distance: {{this.TargetList[0].distance}}&nbsp; id: {{this.TargetList[0].id}}<br/>
+        Target 2:
+        Bearing: {{this.TargetList[1].bearing}}&nbsp; Distance: {{this.TargetList[1].distance}}&nbsp; id: {{this.TargetList[1].id}}</p>
     </div>
   </div>
 </template>

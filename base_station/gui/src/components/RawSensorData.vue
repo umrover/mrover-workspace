@@ -3,27 +3,11 @@
  <h3>Raw Data Reading</h3>
   <div class="wrap">
     <div>
-      <h5>IMU</h5>
-      <p>accel_x_g: {{ IMU.accel_x_g }}</p>
-      <p>accel_y_g: {{ IMU.accel_y_g }}</p>
-      <p>accel_z_g: {{ IMU.accel_z_g }}</p>
-      <p>gyro_x_dps: {{ IMU.gyro_x_dps }}</p>
-      <p>gyro_y_dps: {{ IMU.gyro_y_dps }}</p>
-      <p>gyro_z_dps: {{ IMU.gyro_z_dps }}</p>
-      <p>mag_x_uT: {{ IMU.mag_x_uT }}</p>
-      <p>mag_y_uT: {{ IMU.mag_y_uT  }}</p>
-      <p>mag_z_uT: {{ IMU.mag_z_uT }}</p>
-      <p>roll_rad: {{ IMU.roll_rad }}</p>
-      <p>pitch_rad: {{ IMU.pitch_rad}}</p>
-      <p>yaw_rad: {{ IMU.yaw_rad }}</p>
-      <p>bearing_deg:{{ IMU.bearing_deg.toFixed(2) }}</p>
+      <p>IMU: accel_x_g: {{ IMU.accel_x_g }} accel_y_g: {{ IMU.accel_y_g  }} accel_z_g: {{ IMU.accel_z_g }} &nbsp;gyro_x_dps: {{ IMU.gyro_x_dps }} gyro_y_dps: {{ IMU.gyro_y_dps }} gyro_z_dps: {{ IMU.gyro_z_dps }}
+      &nbsp;mag_x_uT: {{ IMU.mag_x_uT }} mag_y_uT: {{ IMU.mag_y_uT  }} mag_z_uT: {{ IMU.mag_z_uT }} roll_rad: {{ IMU.roll_rad }} pitch_rad: {{ IMU.pitch_rad}} yaw_rad: {{ IMU.yaw_rad }} bearing_deg: {{ IMU.bearing_deg.toFixed(2) }}</p>
     </div>
     <div>
-      <h5>Calibration</h5>
-      <p>sys: {{ IMU.calibration_sys}}</p>
-      <p>gyro: {{ IMU.calibration_gyro }}</p>
-      <p>accel: {{ IMU.calibration_accel}}</p>
-      <p>mag: {{ IMU.calibration_mag }}</p>
+      <p>Calibration: sys: {{ IMU.calibration_sys}} gyro: {{ IMU.calibration_gyro }} accel: {{ IMU.calibration_accel}} mag: {{ IMU.calibration_mag }}</p>
     </div>
   </div>
 </div>
