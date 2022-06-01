@@ -47,7 +47,7 @@ import L from '../leaflet-rotatedmarker.js'
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
 const onlineUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const offlineUrl = '/static/map/{z}/{x}/{y}.png'
+const offlineUrl = '/static/map/{z}/{x}/{y}.jpg'
 
 export default {
   name: 'RoverMap',
