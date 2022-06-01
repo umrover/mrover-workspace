@@ -100,6 +100,14 @@ export default {
         console.error("Callback Function is invalid (should take 1 parameter)")
       }
       this.lcm_.subscribe(channel, callbackFn)
+    },
+    
+    spectral_1_conversion: function(sensor_reading) {
+      return (1 / 0.94) * (sensor_reading - 23.28)
+    },
+
+    spectral_2_conversion: function(sensor_reading) {
+      return (1 / 0.9969) * (sensor_reading + 32.8575)
     }
   },
 
@@ -122,8 +130,28 @@ export default {
       // Subscribed LCM message received
       (msg) => {
         if (msg.topic ==='/spectral_data'){
-          this.spectral_data = msg.message
-        } else if (msg.topic ==='/thermistor_data'){
+          this.spectral_data.d0_1 = msg.message.d0_1
+          this.spectral_data.d0_2 = msg.message.d0_2
+          this.spectral_data.d0_3 = msg.message.d0_3
+          this.spectral_data.d0_4 = msg.message.d0_4
+          this.spectral_data.d0_5 = msg.message.d0_5
+          this.spectral_data.d0_6 = msg.message.d0_6
+
+          this.spectral_data.d1_1 = this.spectral_1_conversion(msg.message.d1_1)
+          this.spectral_data.d1_2 = this.spectral_1_conversion(msg.message.d1_2)
+          this.spectral_data.d1_3 = this.spectral_1_conversion(msg.message.d1_3)
+          this.spectral_data.d1_4 = this.spectral_1_conversion(msg.message.d1_4)
+          this.spectral_data.d1_5 = this.spectral_1_conversion(msg.message.d1_5)
+          this.spectral_data.d1_6 = this.spectral_1_conversion(msg.message.d1_6)
+
+          this.spectral_data.d2_1 = this.spectral_2_conversion(msg.message.d2_1)
+          this.spectral_data.d2_2 = this.spectral_2_conversion(msg.message.d2_2)
+          this.spectral_data.d2_3 = this.spectral_2_conversion(msg.message.d2_3)
+          this.spectral_data.d2_4 = this.spectral_2_conversion(msg.message.d2_4)
+          this.spectral_data.d2_5 = this.spectral_2_conversion(msg.message.d2_5)
+          this.spectral_data.d2_6 = this.spectral_2_conversion(msg.message.d2_6)
+        }
+        else if (msg.topic ==='/thermistor_data'){
           this.thermistor_data = msg.message
         }
       },

@@ -24,12 +24,12 @@ export default {
       const timeString = time.toTimeString().substring(0,17) +" "+time.toDateString()
 
       this.csvFileData = [
-        [timeString, spectral_data.d0_1, spectral_data.d1_1, spectral_data.d2_1],
-        [timeString, spectral_data.d0_2, spectral_data.d1_2, spectral_data.d2_2],
-        [timeString, spectral_data.d0_3, spectral_data.d1_3, spectral_data.d2_3],
-        [timeString, spectral_data.d0_4, spectral_data.d1_4, spectral_data.d2_4],
-        [timeString, spectral_data.d0_5, spectral_data.d1_5, spectral_data.d2_5],
-        [timeString, spectral_data.d0_6, spectral_data.d1_6, spectral_data.d2_6]
+        [timeString, spectral_data.d0_1.toFixed(0), spectral_data.d1_1.toFixed(0), spectral_data.d2_1.toFixed(0)],
+        [timeString, spectral_data.d0_2.toFixed(0), spectral_data.d1_2.toFixed(0), spectral_data.d2_2.toFixed(0)],
+        [timeString, spectral_data.d0_3.toFixed(0), spectral_data.d1_3.toFixed(0), spectral_data.d2_3.toFixed(0)],
+        [timeString, spectral_data.d0_4.toFixed(0), spectral_data.d1_4.toFixed(0), spectral_data.d2_4.toFixed(0)],
+        [timeString, spectral_data.d0_5.toFixed(0), spectral_data.d1_5.toFixed(0), spectral_data.d2_5.toFixed(0)],
+        [timeString, spectral_data.d0_6.toFixed(0), spectral_data.d1_6.toFixed(0), spectral_data.d2_6.toFixed(0)]
       ];
 
       //define the heading for each row of the data
