@@ -133,6 +133,9 @@ export default {
 
   created: function () {
 
+    this.toggleTeleopMode(false);
+    this.toggleAutonMode(false);
+
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
       if(this.waitingForNav){
