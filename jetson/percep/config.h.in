@@ -5,6 +5,7 @@
 #mesondefine OBS_RECORD
 #mesondefine ZED_SDK_PRESENT
 #mesondefine PERCEPTION_DEBUG
+#mesondefine STREAM_ZED
 #mesondefine WRITE_CURR_FRAME_TO_DISK
 #mesondefine DEFAULT_ONLINE_DATA_FOLDER
 

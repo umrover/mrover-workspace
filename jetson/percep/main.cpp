@@ -130,7 +130,19 @@ int main() {
         DoubleTrack(&detector.getAlvarParams()->maxErroneousBitsInBorderRate).setup("maxErroneousBitsInBorderRate", "ARUCO Debug", 1);
         DoubleTrack(&detector.getAlvarParams()->minOtsuStdDev).setup("minOtsuStdDev", "ARUCO Debug", 20);
         DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
+
     #endif
+
+    #if AR_DETECTION && STREAM_ZED
+        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
+                                    "queue ! videoconvert ! x264enc tune=zerolatency bitrate=500000 speed-preset=superfast !"
+                                    "rtph264pay ! udpsink host=10.0.0.1 port=5002";
+
+        cv::Size streamSize(256, 144);
+        cv::VideoWriter writer(gstLaunch, 0, 30, streamSize);
+        cv::Mat send(streamSize, CV_8UC3);
+
+    #endif 
 
     /* --- Main Processing Stuff --- */
     while (true) {
@@ -143,6 +155,7 @@ int main() {
         cv::Mat src = cam.image();
         cv::Mat depth_img = cam.depth();
         cv::Mat xyz_img = cam.xyz();
+
 #endif
 
 #if OBSTACLE_DETECTION
@@ -170,11 +183,17 @@ int main() {
 #if AR_RECORD
         cam.record_ar(rgb);
 #endif
+#if STREAM_ZED
+        cv::Mat bgr, sendMat;
+        cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
+        cv::resize(bgr, sendMat, streamSize);
+        writer.write(sendMat);
+#endif
 
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
 
 #if PERCEPTION_DEBUG && AR_DETECTION
-//        cv::imshow("depth", depth_img);
+        cv::imshow("depth", depth_img);
         cv::waitKey(1);
 #endif
 
