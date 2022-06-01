@@ -1,8 +1,7 @@
 <template>
   <div class="wrap">
     <div>
-    <h5>Obstacle Data:</h5>
-    <p>Detected: {{this.Obstacle.detected}}<br/>Bearing: {{this.Obstacle.bearing}}<br/>Distance: {{this.Obstacle.distance}}</p>
+    <p>Obstacle Data: Detected: {{this.Obstacle.detected}} &nbsp;Bearing: {{this.Obstacle.bearing}} &nbsp;Distance: {{this.Obstacle.distance}}</p>
     </div>
   </div>
 </template>
