@@ -225,7 +225,6 @@ export default {
     ...mapMutations('autonomy',{
       setClickPoint: 'setClickPoint',
       setWaypointList: 'setWaypointList',
-      setAutonMode: 'setAutonMode',
       setOdomFormat: 'setOdomFormat'
     }),
   },
