@@ -1,20 +1,20 @@
 /* This file contains the CanvasObstacles class for drawing obstacles on the
-   canvas. */
+canvas. */
 
 import { odomToCanvas } from '../../utils/utils';
-import { Obstacle, Odom, Point2D } from '../../utils/types';
+import { ObstacleField, Odom, Point2D } from '../../utils/types';
 
 /**************************************************************************************************
- * Constants
- **************************************************************************************************/
+* Constants
+**************************************************************************************************/
 /* Space needed to draw label inside obstacle in pixels. */
 const LABEL_SPACE_REQUIRED = 30;
 
 /* Class for drawing obstacles on the field canvas. */
 export default class CanvasObstacles {
   /************************************************************************************************
-   * Private Members
-   ************************************************************************************************/
+  * Private Members
+  ************************************************************************************************/
   /* GPS point of the center of the canvas */
   private canvasCent!:Odom;
 
@@ -22,17 +22,17 @@ export default class CanvasObstacles {
   private ctx!:CanvasRenderingContext2D;
 
   /* list of all obstacles on field */
-  private obstacles!:Obstacle[];
+  private obstacles!:ObstacleField[];
 
   /* scale of the canvas in pixels/meter */
   private scale!:number;
 
   /************************************************************************************************
-   * Public Methods
-   ************************************************************************************************/
+  * Public Methods
+  ************************************************************************************************/
   /* Initialize CanvasObstacles instance. */
   constructor(
-      obstacles:Obstacle[],
+      obstacles:ObstacleField[],
       canvasCent:Odom,
       scale:number /* pixels/meter */
   ) {
@@ -66,8 +66,8 @@ export default class CanvasObstacles {
   } /* drawObstacles() */
 
   /************************************************************************************************
-   * Private Methods
-   ************************************************************************************************/
+  * Private Methods
+  ************************************************************************************************/
   /* Draw a single obstacle on the canvas. */
   private drawObstacle(size:number, label:string):void {
     this.ctx.beginPath();

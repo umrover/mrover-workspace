@@ -36,7 +36,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Mutation } from 'vuex-class';
-import { Obstacle, RoverLocationSource } from '../../utils/types';
+import { ObstacleField, RoverLocationSource } from '../../utils/types';
 import Button from '../common/Button.vue';
 import NumberInput from '../common/NumberInput.vue';
 import FieldItemInfo from './FieldItemInfo.vue';
@@ -81,14 +81,14 @@ export default class ObstacleItem extends Vue {
   private readonly index!:number;
 
   /* Obstacle represented by this ObstacleItem. */
-  @Prop({ required: true, type: Object as ()=>Obstacle })
-  private readonly obstacle!:Obstacle;
+  @Prop({ required: true, type: Object as ()=>ObstacleField })
+  private readonly obstacle!:ObstacleField;
 
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
   @Mutation
-  private readonly editObstacle!:(updatedObstacle:[Obstacle, number])=>void;
+  private readonly editObstacle!:(updatedObstacle:[ObstacleField, number])=>void;
 
   @Mutation
   private readonly removeObstacle!:(index:number)=>void;

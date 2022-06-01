@@ -6,8 +6,8 @@
   <div class="box">
     <fieldset class="obstacle">
       <legend>Obstacle</legend>
-      <p>Distance: {{ dist }} m</p>
-      <p>Bearing: {{ bear }}º</p>
+      <p>bottom_left_coordinate_meters: {{ dist }} m</p>
+      <p>top_right_coordinate_meters: {{ bear }}º</p>
     </fieldset>
   </div>
 </template>
@@ -34,12 +34,12 @@ export default class ObstacleLCM extends Vue {
   /* distance to the closest obstacle (if one exists) in the obstacle message
      LCM */
   private get dist():number {
-    return Number(this.obstacleMessage.distance.toFixed(2));
+    return Number(this.obstacleMessage.numObstacles.toFixed(2));
   }
 
   /* bearing to turn to in the obstacle message LCM */
   private get bear():number {
-    return Number(this.obstacleMessage.bearing.toFixed(2));
+    return Number(this.obstacleMessage.numObstacles.toFixed(2));
   }
 }
 </script>
