@@ -31,7 +31,7 @@ void Environment::setTargets(TargetList const& targets) {
     }
     else{
         mLeftTargetDistance.reset();
-        mLeftTargetBearing.reest();
+        mLeftTargetBearing.reset();
     }
     if (mTargetRight.isValid()){
         mRightTargetBearing.push(mTargetRight.get().bearing);
