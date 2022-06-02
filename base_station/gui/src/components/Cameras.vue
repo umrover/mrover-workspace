@@ -15,7 +15,7 @@
 <script>
   import CameraSelection from './CameraSelection.vue'
   import CommIndicator from './CommIndicator.vue'
-  import Checkbox from "./Checkbox.vue"
+  import Checkbox from './Checkbox.vue'
 
   let interval;
 

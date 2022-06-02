@@ -24,7 +24,7 @@ export default {
           "l": event.keyCode === 76
         }
 
-        this.$parent.$parent.publish('/gimbal_control', keyboardData)
+        this.$parent.publish('/gimbal_control', keyboardData)
       },
 
       keyzero: (event) => {

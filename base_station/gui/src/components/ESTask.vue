@@ -24,6 +24,7 @@
 
     <div class="box cameras light-bg">
       <Cameras v-bind:numCams="2" v-bind:mission="'ES'" v-bind:channel="'/cameras_control'"/>
+      <GimbalControls/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -56,6 +57,7 @@ import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
 import ESArmToggles from './ESArmToggles.vue'
+import GimbalControls from './GimbalControls.vue'
 
 export default {
   name: 'RATask',
@@ -130,7 +132,8 @@ export default {
     IKControls,
     PDBFuse,
     DriveVelDataV,
-    ESArmToggles
+    ESArmToggles,
+    GimbalControls
   }
 }
 </script>
