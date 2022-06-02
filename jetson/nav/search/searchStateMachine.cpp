@@ -64,6 +64,12 @@ NavState SearchStateMachine::executeSearch() {
     }
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
+    ProjectedPoints projectedPoints{};
+    projectedPoints.points.assign(mSearchPoints.begin(), mSearchPoints.end());
+    projectedPoints.pattern_size = static_cast<int32_t>(projectedPoints.points.size());
+    projectedPoints.path_type = "gate-path";
+    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
+    sm->getLCM().publish(gatePathChannel, &projectedPoints);
     double dt = sm->getDtSeconds();
     if (rover->drive(nextSearchPoint, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         // We have reached the current search point
@@ -116,18 +122,15 @@ NavState SearchStateMachine::executeDriveToTarget() {
             return NavState::Search;
         }
     } else {
-        if (leftTarget.id >= 0 && rightTarget.id >= 0) {
-            if (leftTarget.id == lastWaypoint.id) {
-                distance = leftTarget.distance;
-                bearing = leftTarget.bearing + currentBearing;
-            } else {
-                distance = rightTarget.distance;
-                bearing = rightTarget.bearing + currentBearing;
-            }
-        } else if (leftTarget.id >= 0) {
+        //not gate (AR tag)
+        if (leftTarget.id == lastWaypoint.id) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
-        } else {
+        } else if (rightTarget.id == lastWaypoint.id){
+            distance = rightTarget.distance;
+            bearing = rightTarget.bearing + currentBearing;
+        }
+        else {
             std::cerr << "Lost target" << std::endl;
             return NavState::Search;
         }

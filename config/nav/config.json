@@ -6,6 +6,13 @@
 		"kD": 0.0
 	},
 
+	"driveBearingPid":
+	{
+		"kP": 0.05,
+		"kI": 0.0,
+		"kD": 0.0
+	},
+
 	"distancePid":
 	{
 		"kP": 0.2,
