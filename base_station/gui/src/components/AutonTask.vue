@@ -21,19 +21,16 @@
     </div>
 
     <div class="box1 data" v-bind:style="{backgroundColor: nav_state_color}">
-     <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
-     <div class="raw-data raw-sensors">
+      <h2>Nav State: {{this.nav_status.nav_state_name}}</h2>
+      <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-        <br>
-        <br>
         <Obstacle v-bind:Obstacle="Obstacle"/>
-        <br>
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
         <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
         <PlaybackAutonData/>
-     </div>
+      </div>
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
@@ -354,6 +351,11 @@ export default {
 
   .header h1 {
     margin-left: 5px;
+  }
+
+  h2 {
+    padding: 2px;
+    margin: 0px;
   }
 
   .spacer {

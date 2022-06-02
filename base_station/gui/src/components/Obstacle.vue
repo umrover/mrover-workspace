@@ -1,7 +1,10 @@
 <template>
   <div class="wrap">
     <div>
-    <p>Obstacle Data: Detected: {{this.Obstacle.detected}} &nbsp;Bearing: {{this.Obstacle.bearing}} &nbsp;Distance: {{this.Obstacle.distance}}</p>
+    <p><b>Obstacle Data: </b>&nbsp;
+      Detected: {{this.Obstacle.detected}}&nbsp;
+      Bearing: {{this.Obstacle.bearing}}&nbsp;
+      Distance: {{this.Obstacle.distance}}</p>
     </div>
   </div>
 </template>
@@ -27,16 +30,24 @@ export default {
 <style scoped>
    
   .wrap {
-      padding: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
-      border: none;
-      margin: -45px 0px 0px 0px;
-      grid-template-rows: auto;
+    padding: 2px;
+    border: none;
+    grid-template-rows: auto;
   }
 
   .wrap p {
     display: inline;
+  }
+
+  h5 {
+    padding: 0;
+    padding-top: 2px;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
   }
 
 </style>
