@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <h3> Drive </h3>
+    <h4> Drive </h4>
     <div class="controls">
       <span>Speed Limiter: {{ dampenDisplay }}%</span>
       <Checkbox class="reverse" ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
@@ -125,6 +125,13 @@ export default {
 .controls {
   display: flex;
   align-items: center;
+}
+
+h4 {
+  padding-top: 5px;
+  margin-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .reverse {

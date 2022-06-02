@@ -14,6 +14,7 @@
 
     <div class="box cameras light-bg">
       <Cameras v-bind:numCams="2" v-bind:mission="'Science'" v-bind:channel="'/cameras_control'"/>
+      <GimbalControls/>
     </div>
     <div class="box drivecontrols light-bg">
       <DriveControls/>
@@ -42,6 +43,7 @@ import DriveVelDataH from './DriveVelDataH.vue'
 import ScoopUV from './ScoopUV.vue'
 import SAArm from './SAArm.vue'
 import PDBFuse from './PDBFuse.vue'
+import GimbalControls from './GimbalControls.vue'
 
 let interval;
 
@@ -124,7 +126,8 @@ export default {
     DriveVelDataH,
     ScoopUV,
     SAArm,
-    PDBFuse
+    PDBFuse,
+    GimbalControls
   }
 }
 </script>
