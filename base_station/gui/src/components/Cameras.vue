@@ -9,9 +9,6 @@
     <div class="cameraselection">
       <CameraSelection class="cameraspace1" v-bind:camsEnabled="camsEnabled" v-bind:names="names" v-bind:numCams="numCams" v-on:cam_index="setCamIndex($event)"/>
     </div>
-    <div class="keyboard">
-      <GimbalControls/>
-    </div>
   </div>
 </template>
 
@@ -19,7 +16,6 @@
   import CameraSelection from './CameraSelection.vue'
   import CommIndicator from './CommIndicator.vue'
   import Checkbox from './Checkbox.vue'
-  import GimbalControls from './GimbalControls.vue'
 
   let interval;
 
@@ -111,8 +107,7 @@
     components: {
       CameraSelection,
       CommIndicator,
-      Checkbox,
-      GimbalControls
+      Checkbox
     }
   }
 </script>

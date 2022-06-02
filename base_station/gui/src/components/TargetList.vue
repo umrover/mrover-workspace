@@ -1,10 +1,14 @@
 <template>
   <div class="wrap">
     <div>
-    <p>Target 1:
-        Bearing: {{this.TargetList[0].bearing}} &nbsp;Distance: {{this.TargetList[0].distance}}&nbsp; id: {{this.TargetList[0].id}}<br/>
-        Target 2:
-        Bearing: {{this.TargetList[1].bearing}}&nbsp; Distance: {{this.TargetList[1].distance}}&nbsp; id: {{this.TargetList[1].id}}</p>
+      <p><b>Target 1: </b>&nbsp;
+        Bearing: {{ this.TargetList[0].bearing.toFixed(2) }}&nbsp;
+        Distance: {{ this.TargetList[0].distance.toFixed(2) }}&nbsp;
+        id: {{ this.TargetList[0].id.toFixed(0) }}&nbsp;
+        <b>Target 2: </b>&nbsp;
+        Bearing: {{ this.TargetList[1].bearing.toFixed(2) }}&nbsp;
+        Distance: {{ this.TargetList[1].distance.toFixed(2) }}&nbsp;
+        id: {{ this.TargetList[1].id.toFixed(0) }}</p>
     </div>
   </div>
 </template>
@@ -24,16 +28,23 @@ export default {
 <style scoped>
    
   .wrap {
-      padding: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
-      border: none;
-      margin: 0px 0px 0px 0px;
-      grid-template-rows: auto;
+    padding: 2px;
+    grid-template-rows: auto;
   }
 
   .wrap p {
     display: inline;
+  }
+
+  h5 {
+    padding: 0;
+    padding-top: 2px;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
   }
 
 </style>
