@@ -381,7 +381,7 @@ export default {
                 }
                 csv += ','
 
-                csv += this.projected_path_type
+                csv += this.projected_path_type[i]
 
                 csv += '\n'
             }
