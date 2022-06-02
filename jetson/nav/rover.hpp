@@ -67,7 +67,7 @@ public:
 
     void stop();
 
-    PidLoop& bearingPid();
+    PidLoop& turningBearingPid();
 
     PidLoop& drivingBearingPid();
 
@@ -105,7 +105,7 @@ private:
     lcm::LCM& mLcmObject;
 
     // The pid loop for turning.
-    PidLoop mBearingPid;
+    PidLoop mTurningBearingPid;
 
     // The pid loop for turning while driving
     PidLoop mDriveBearingPid;

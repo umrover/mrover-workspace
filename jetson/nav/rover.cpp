@@ -9,7 +9,7 @@
 // object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
-          mBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
+          mTurningBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
                               config["bearingPid"]["kI"].GetDouble(),
                               config["bearingPid"]["kD"].GetDouble())
                               .withMaxInput(360.0)
@@ -69,10 +69,10 @@ bool Rover::turn(Odometry const& destination, double dt) {
 
 // Turn to an absolute bearing
 bool Rover::turn(double absoluteBearing, double dt) {
-    if (mBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
+    if (mTurningBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
         return true;
     }
-    double turningEffort = mBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
+    double turningEffort = mTurningBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
     // To turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
     double leftVel = std::max(std::min(1.0, +turningEffort), -1.0);
     double rightVel = std::max(std::min(1.0, -turningEffort), -1.0);
@@ -94,8 +94,8 @@ double Rover::longMeterInMinutes() const {
 }
 
 // Gets the rover's turning pid object.
-PidLoop& Rover::bearingPid() {
-    return mBearingPid;
+PidLoop& Rover::turningBearingPid() {
+    return mTurningBearingPid;
 } // bearingPid()
 
 // Gets the rover's turning pid while driving object
