@@ -69,7 +69,7 @@ public:
 
     PidLoop& bearingPid();
 
-    PidLoop& driveBearingPid();
+    PidLoop& drivingBearingPid();
 
     [[nodiscard]] double longMeterInMinutes() const;
 

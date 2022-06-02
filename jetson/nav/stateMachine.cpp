@@ -105,6 +105,7 @@ void StateMachine::run() {
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
             mRover->bearingPid().reset();
+            mRover->drivingBearingPid().reset();
         }
     } else {
         nextState = NavState::Off;

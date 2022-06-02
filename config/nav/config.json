@@ -8,7 +8,7 @@
 
 	"driveBearingPid":
 	{
-		"kP": 0.1,
+		"kP": 0.05,
 		"kI": 0.0,
 		"kD": 0.0
 	},

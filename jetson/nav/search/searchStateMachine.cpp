@@ -64,6 +64,12 @@ NavState SearchStateMachine::executeSearch() {
     }
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
+    ProjectedPoints projectedPoints{};
+    projectedPoints.points.assign(mSearchPoints.begin(), mSearchPoints.end());
+    projectedPoints.pattern_size = static_cast<int32_t>(projectedPoints.points.size());
+    projectedPoints.path_type = "gate-path";
+    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
+    sm->getLCM().publish(gatePathChannel, &projectedPoints);
     double dt = sm->getDtSeconds();
     if (rover->drive(nextSearchPoint, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         // We have reached the current search point
