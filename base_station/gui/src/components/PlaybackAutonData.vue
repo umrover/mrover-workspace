@@ -20,7 +20,10 @@ export default {
       gps_bearing: [],
       target_bearing: [],
       waypoint_lat: [],
-      waypoint_lon: []
+      waypoint_lon: [],
+      projected_path_lat_str: [],
+      projected_path_lon_str: [],
+      projected_path_type_str: [],
     }
   },
 
@@ -67,6 +70,10 @@ export default {
           let waypoint_lat_idx = 0
           let waypoint_lon_idx = 0
 
+          let projected_path_lat_idx = 0
+          let projected_path_lon_idx = 0
+          let projected_path_type_idx = 0
+
           for (let i = 0; i < parsed_data[0].length; i++) {
             switch (parsed_data[0][i]) {
               case 'Odom Degrees Lat':
@@ -95,6 +102,15 @@ export default {
                 break
               case 'First Waypoint Lon':
                 waypoint_lon_idx = i
+                break
+              case 'Projected Path Lat':
+                projected_path_lat_idx = i
+                break
+              case 'Projected Path Lon':
+                projected_path_lon_idx = i
+                break
+              case 'Projected Path Type':
+                projected_path_type_idx = i
                 break
             }
           }
