@@ -46,6 +46,7 @@
     </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:numCams="2" v-bind:mission="'Auton'" v-bind:channel="'/cameras_control'"/>
+      <GimbalControls/>
     </div>
   </div>
 
@@ -67,6 +68,7 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
 import PlaybackAutonData from './PlaybackAutonData.vue'
+import GimbalControls from './GimbalControls.vue'
 
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
@@ -295,7 +297,8 @@ export default {
     TargetList,
     DriveVelDataH,
     SaveAutonData,
-    PlaybackAutonData
+    PlaybackAutonData,
+    GimbalControls
   }
 }
 </script>
