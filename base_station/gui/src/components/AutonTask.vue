@@ -21,7 +21,7 @@
     </div>
 
     <div class="box1 data" v-bind:style="{backgroundColor: nav_state_color}">
-      <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
+      <h2>Nav State: {{this.nav_status.nav_state_name}}</h2>
       <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
@@ -351,6 +351,11 @@ export default {
 
   .header h1 {
     margin-left: 5px;
+  }
+
+  h2 {
+    padding: 2px;
+    margin: 0px;
   }
 
   .spacer {

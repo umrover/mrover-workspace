@@ -1,8 +1,10 @@
 <template>
   <div class="wrap">
     <div>
-    <h5>Obstacle Data</h5>
-    <p>Detected: {{this.Obstacle.detected}}<br/>Bearing: {{this.Obstacle.bearing}}<br/>Distance: {{this.Obstacle.distance}}</p>
+    <p><b>Obstacle Data: </b>&nbsp;
+      Detected: {{this.Obstacle.detected}}&nbsp;
+      Bearing: {{this.Obstacle.bearing}}&nbsp;
+      Distance: {{this.Obstacle.distance}}</p>
     </div>
   </div>
 </template>
@@ -28,7 +30,7 @@ export default {
 <style scoped>
    
   .wrap {
-    padding: 5px;
+    padding: 2px;
     border: none;
     grid-template-rows: auto;
   }
@@ -39,7 +41,7 @@ export default {
 
   h5 {
     padding: 0;
-    padding-top: 5px;
+    padding-top: 2px;
     margin: 0;
   }
 
