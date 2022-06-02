@@ -28,7 +28,7 @@ class Mosfet_devices(Enum):
     RA_LASER = 1
     UV_LED = 4
     WHITE_LED = 5
-    UV_BULB = 6
+    UV_BULB = 1
     RAMAN_LASER = 10
 
 
