@@ -6,8 +6,8 @@
         accel_y_g: {{ IMU.accel_y_g.toFixed(2) }}&nbsp;
         accel_z_g: {{ IMU.accel_z_g.toFixed(2) }}&nbsp;
         gyro_x_dps: {{ IMU.gyro_x_dps.toFixed(2) }}&nbsp;
-        gyro_z_dps: {{ IMU.gyro_z_dps.toFixed(2) }}&nbsp;
         gyro_y_dps: {{ IMU.gyro_y_dps.toFixed(2) }}&nbsp;
+        gyro_z_dps: {{ IMU.gyro_z_dps.toFixed(2) }}&nbsp;
         mag_x_uT: {{ IMU.mag_x_uT.toFixed(2) }}&nbsp;
         mag_y_uT: {{ IMU.mag_y_uT.toFixed(2)  }}&nbsp;
         mag_z_uT: {{ IMU.mag_z_uT.toFixed(2) }}&nbsp;
