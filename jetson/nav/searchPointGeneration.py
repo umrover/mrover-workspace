@@ -32,7 +32,7 @@ def generateEquidistantSpiralSearchPoints(radius, distance, coils, rotation):
     return coordinates
 
 def generateSquareSpiral (points, distance):
-    directions = [(0,1), (1,0), (0,-1), (-1,0)]
+    directions = [(0,1), (-1,0), (0,-1), (1,0)]
     coordinates = [(0,0)]
     new_distance = distance
     for i in range(0,points):
