@@ -122,4 +122,6 @@ private:
 
     // The rover's current odometry information.
     Odometry mOdometry{};
+
+    bool mTurning, mDriving;
 };
