@@ -30,8 +30,8 @@
     </l-map>
     <div class="controls">
       <div v-if="this.playbackEnabled">
-        <input type="range" min="0" :max='this.playbackLength-1' value ='0' width="200px" v-model='playbackSlider'>
-        <p>State: {{ playbackNavState }}</p>
+        <input type="range" min="0" :max='this.playbackLength-1' value ='0' width="400px" v-model='playbackSlider'>
+        <!-- <p>State: {{ playbackState }}</p> -->
       </div>
       <div class="online">
         <label><input type="checkbox" v-model="online" />Online</label>
@@ -190,6 +190,7 @@ export default {
 
       playbackPath: [],
       playbackSlider: 0,
+      playbackState: '',
 
       options: {
         type: Object,
@@ -333,6 +334,8 @@ export default {
       else if (length_diff < 0) {
         this.playbackPath.splice(val, -1*length_diff)
       }
+
+      this.playbackState = this.playbackNavState[val]
     }
   },
 
