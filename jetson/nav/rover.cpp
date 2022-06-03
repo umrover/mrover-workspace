@@ -19,7 +19,9 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
                                    config["driveBearingPid"]["kD"].GetDouble())
                                     .withMaxInput(360.0)
                                     .withThreshold(mConfig["navThresholds"]["turningBearing"].GetDouble())),
-          mLongMeterInMinutes(-1) {
+          mLongMeterInMinutes(-1),
+          mTurning(true),
+          mDriving(false) {
 } // Rover(
 
 /***
@@ -38,14 +40,26 @@ bool Rover::drive(const Odometry& destination, double stopDistance, double dt) {
 
 bool Rover::drive(double distance, double bearing, double threshold, double dt) {
     if (distance < threshold) {
+        mTurning = true;
+        mDriving = false;
         return true;
     }
     TargetBearing targetBearingLCM = {bearing};
     std::string const& targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
     mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
-    if (turn(bearing, dt)) {
+    if (mTurning){
+        if (turn(bearing, dt)){
+            mTurning = false;
+            mDriving = true;
+        }
+    }
+    else{
         double destinationBearing = mod(bearing, 360);
         double turningEffort = mDriveBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
+        if (mDriveBearingPid.error(mOdometry.bearing_deg, destinationBearing) > mConfig["navThresholds"]["drivingBearing"].GetDouble()){
+            mTurning = true;
+            mDriving = false;
+        }
         // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
         // if we need to turn clockwise, turning effort will be positive, so leftVel will be 1, and rightVel will be in between 0 and 1
         // if we need to turn ccw, turning effort will be negative, so rightVel will be 1 and leftVel will be in between 0 and 1
