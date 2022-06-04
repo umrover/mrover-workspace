@@ -21,7 +21,8 @@
 #include "environment.hpp"
 #include "pid.hpp"
 #include <ctime>
-
+#include <chrono>
+#define NOW std::chrono::high_resolution_clock::now()
 using namespace rover_msgs;
 
 // This class is the representation of the navigation states.
@@ -127,5 +128,5 @@ private:
 
     bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
 
-    clock_t mTurnStartTime, mBackingUpStartTime;
+    std::chrono::_V2::system_clock::time_point mTurnStartTime, mBackingUpStartTime;
 };
