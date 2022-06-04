@@ -2,6 +2,8 @@
 
 #include <queue>
 #include <memory>
+#include <chrono>
+
 
 #include <lcm/lcm-cpp.hpp>
 
@@ -18,7 +20,7 @@
 #include "courseProgress.hpp"
 #include "environment.hpp"
 #include "pid.hpp"
-
+#include <ctime>
 
 using namespace rover_msgs;
 
@@ -123,5 +125,7 @@ private:
     // The rover's current odometry information.
     Odometry mOdometry{};
 
-    bool mTurning, mDriving;
+    bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
+
+    clock_t mTurnStartTime, mBackingUpStartTime;
 };
