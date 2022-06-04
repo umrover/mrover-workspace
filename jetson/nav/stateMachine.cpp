@@ -104,7 +104,8 @@ void StateMachine::run() {
 
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
-            mRover->bearingPid().reset();
+            mRover->turningBearingPid().reset();
+            mRover->drivingBearingPid().reset();
         }
     } else {
         nextState = NavState::Off;
@@ -159,8 +160,9 @@ NavState StateMachine::executeDrive() {
     mEnv->setShouldLookForGate(currentWaypoint.gate);
     double dt = getDtSeconds();
     if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
-        mCourseProgress->completeCurrentWaypoint();
+        //messy but in a rush
         std::cout << "Completed waypoint" << std::endl;
+        mCourseProgress->completeCurrentWaypoint();
         if (currentWaypoint.search) {
             return NavState::BeginSearch;
         } else if (mCourseProgress->getRemainingWaypoints().empty()) {

@@ -57,8 +57,9 @@ NavState SearchStateMachine::executeSearch() {
         }
     } else {
         // Either target works
-        bool isWantedTarget = lastWaypoint.id == leftTarget.id || lastWaypoint.id == rightTarget.id;
-        if (leftTarget.id >= 0 && isWantedTarget) {
+        bool isWantedTarget = (lastWaypoint.id == leftTarget.id && leftTarget.id >= 0) ||
+                                (lastWaypoint.id == rightTarget.id && rightTarget.id >= 0);
+        if (isWantedTarget) {
             return NavState::DriveToTarget;
         }
     }
@@ -69,6 +70,13 @@ NavState SearchStateMachine::executeSearch() {
         // We have reached the current search point
         // Start going to next if we have one, else finish
         mSearchPoints.pop_front();
+
+        ProjectedPoints projectedPoints{};
+        projectedPoints.points.assign(mSearchPoints.begin(), mSearchPoints.end());
+        projectedPoints.pattern_size = static_cast<int32_t>(projectedPoints.points.size());
+        projectedPoints.path_type = "search-path";
+        std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
+        sm->getLCM().publish(gatePathChannel, &projectedPoints);
         if (mSearchPoints.empty()) {
             return NavState::Done;
         }
@@ -116,18 +124,15 @@ NavState SearchStateMachine::executeDriveToTarget() {
             return NavState::Search;
         }
     } else {
-        if (leftTarget.id >= 0 && rightTarget.id >= 0) {
-            if (leftTarget.id == lastWaypoint.id) {
-                distance = leftTarget.distance;
-                bearing = leftTarget.bearing + currentBearing;
-            } else {
-                distance = rightTarget.distance;
-                bearing = rightTarget.bearing + currentBearing;
-            }
-        } else if (leftTarget.id >= 0) {
+        //not gate (AR tag)
+        if (leftTarget.id == lastWaypoint.id) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
-        } else {
+        } else if (rightTarget.id == lastWaypoint.id){
+            distance = rightTarget.distance;
+            bearing = rightTarget.bearing + currentBearing;
+        }
+        else {
             std::cerr << "Lost target" << std::endl;
             return NavState::Search;
         }

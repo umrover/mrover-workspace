@@ -9,12 +9,21 @@
 // object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
-          mBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
+          mTurningBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
                               config["bearingPid"]["kI"].GetDouble(),
                               config["bearingPid"]["kD"].GetDouble())
                               .withMaxInput(360.0)
                               .withThreshold(mConfig["navThresholds"]["turningBearing"].GetDouble())),
-          mLongMeterInMinutes(-1) {
+          mDriveBearingPid(PidLoop(config["driveBearingPid"]["kP"].GetDouble(),
+                                   config["driveBearingPid"]["kI"].GetDouble(),
+                                   config["driveBearingPid"]["kD"].GetDouble())
+                                    .withMaxInput(360.0)
+                                    .withThreshold(mConfig["navThresholds"]["turningBearing"].GetDouble())),
+          mLongMeterInMinutes(-1),
+          mTurning(true),
+          mDriving(false),
+          mBackingUp(false),
+          mNeedToSetTurnStart(true) {
 } // Rover(
 
 /***
@@ -33,14 +42,66 @@ bool Rover::drive(const Odometry& destination, double stopDistance, double dt) {
 
 bool Rover::drive(double distance, double bearing, double threshold, double dt) {
     if (distance < threshold) {
+        mTurning = true;
+        mDriving = false;
+        mBackingUp = false;
+        mNeedToSetTurnStart = true;
         return true;
+    }
+    if (mNeedToSetTurnStart){
+        mTurnStartTime = NOW;
+        std::cout << "staring turn clock" << std::endl;
+        mNeedToSetTurnStart = false;
     }
     TargetBearing targetBearingLCM = {bearing};
     std::string const& targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
     mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
-    if (turn(bearing, dt)) {
+    auto straightTime = std::chrono::milliseconds(2000);
+    auto totalTime = std::chrono::milliseconds(4000);
+    auto turnTimeout = std::chrono::milliseconds(15000);
+    if (mBackingUp){
+        std::cout << "backing out" << std::endl;
+        if (NOW - mBackingUpStartTime > totalTime){
+            mBackingUp = false;
+            mTurning = true;
+            mDriving = false;
+            mTurnStartTime = NOW;
+            std::cout << "staring turn clock" << std::endl;
+        }
+        else if (NOW - mBackingUpStartTime > straightTime){
+            publishAutonDriveCmd(-1.0, -0.5);
+        }
+        else{
+            publishAutonDriveCmd(-1.0, -1.0);
+        }
+    }
+    else if (mTurning){
+        std::cout << "turning" << std::endl;
+        if (turn(bearing, dt)){
+            mTurning = false;
+            mDriving = true;
+            mBackingUp = false;
+        }
+        if (!mBackingUp){
+            //std::cout << NOW - mTurnStartTime << std::endl;
+            if (NOW - mTurnStartTime > turnTimeout){
+                mBackingUpStartTime = NOW;
+                mBackingUp = true;
+                mTurning = false;
+                mDriving = false;
+            }
+        }
+    }
+    else{
+        std::cout << "driving" << std::endl;
         double destinationBearing = mod(bearing, 360);
-        double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
+        double turningEffort = mDriveBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
+        if (mDriveBearingPid.error(mOdometry.bearing_deg, destinationBearing) > mConfig["navThresholds"]["drivingBearing"].GetDouble()){
+            mTurning = true;
+            mTurnStartTime = NOW;
+            std::cout << "starting turn clock" << std::endl;
+            mDriving = false;
+        }
         // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
         // if we need to turn clockwise, turning effort will be positive, so leftVel will be 1, and rightVel will be in between 0 and 1
         // if we need to turn ccw, turning effort will be negative, so rightVel will be 1 and leftVel will be in between 0 and 1
@@ -51,6 +112,8 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
         double rightVel = std::min(1.0, std::max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(leftVel, rightVel);
     }
+
+    
 
     return false;
 } // drive()
@@ -64,10 +127,10 @@ bool Rover::turn(Odometry const& destination, double dt) {
 
 // Turn to an absolute bearing
 bool Rover::turn(double absoluteBearing, double dt) {
-    if (mBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
+    if (mTurningBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
         return true;
     }
-    double turningEffort = mBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
+    double turningEffort = mTurningBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
     // To turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
     double leftVel = std::max(std::min(1.0, +turningEffort), -1.0);
     double rightVel = std::max(std::min(1.0, -turningEffort), -1.0);
@@ -76,6 +139,10 @@ bool Rover::turn(double absoluteBearing, double dt) {
 } // turn()
 
 void Rover::stop() {
+    mTurning = true;
+    mBackingUp = false;
+    mDriving = false;
+    mNeedToSetTurnStart = true;
     publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
@@ -89,9 +156,14 @@ double Rover::longMeterInMinutes() const {
 }
 
 // Gets the rover's turning pid object.
-PidLoop& Rover::bearingPid() {
-    return mBearingPid;
+PidLoop& Rover::turningBearingPid() {
+    return mTurningBearingPid;
 } // bearingPid()
+
+// Gets the rover's turning pid while driving object
+PidLoop& Rover::drivingBearingPid() {
+    return mDriveBearingPid;
+}// drivingBearingPid()
 
 void Rover::publishAutonDriveCmd(const double leftVel, const double rightVel) {
     AutonDriveControl driveControl{

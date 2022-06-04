@@ -2,6 +2,8 @@
 
 #include <queue>
 #include <memory>
+#include <chrono>
+
 
 #include <lcm/lcm-cpp.hpp>
 
@@ -18,8 +20,9 @@
 #include "courseProgress.hpp"
 #include "environment.hpp"
 #include "pid.hpp"
-
-
+#include <ctime>
+#include <chrono>
+#define NOW std::chrono::high_resolution_clock::now()
 using namespace rover_msgs;
 
 // This class is the representation of the navigation states.
@@ -67,7 +70,9 @@ public:
 
     void stop();
 
-    PidLoop& bearingPid();
+    PidLoop& turningBearingPid();
+
+    PidLoop& drivingBearingPid();
 
     [[nodiscard]] double longMeterInMinutes() const;
 
@@ -103,7 +108,10 @@ private:
     lcm::LCM& mLcmObject;
 
     // The pid loop for turning.
-    PidLoop mBearingPid;
+    PidLoop mTurningBearingPid;
+
+    // The pid loop for turning while driving
+    PidLoop mDriveBearingPid;
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
@@ -117,4 +125,8 @@ private:
 
     // The rover's current odometry information.
     Odometry mOdometry{};
+
+    bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
+
+    std::chrono::_V2::system_clock::time_point mTurnStartTime, mBackingUpStartTime;
 };
