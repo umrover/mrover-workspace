@@ -1,15 +1,15 @@
-#include <memory>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 #include <lcm/lcm-cpp.hpp>
-#include "rapidjson/document.h"
-#include "rapidjson/istreamwrapper.h"
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 
-#include "stateMachine.hpp"
-#include "environment.hpp"
 #include "courseProgress.hpp"
-
+#include "environment.hpp"
+#include "stateMachine.hpp"
 
 using namespace rover_msgs;
 
@@ -23,7 +23,7 @@ rapidjson::Document readConfig() {
     rapidjson::IStreamWrapper isw(configFile);
     document.ParseStream(isw);
     return document;
-}
+}// readConfig()
 
 // Runs the autonomous navigation of the rover.
 int main() {
@@ -64,4 +64,4 @@ int main() {
         stateMachine->run();
     }
     return 0;
-} // main()
+}// main()

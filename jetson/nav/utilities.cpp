@@ -1,16 +1,19 @@
 #include "utilities.hpp"
-#include <iostream> // remove
+
 #include <cmath>
+
+// You probably don't want to copy anything in this file
+// Everything is implemented in a very silly way, but hey it works
 
 /** @brief Coverts the input degree (and optional minute) to radians */
 double degreeToRadian(const double degree, const double minute) {
     return (PI / 180) * (degree + minute / 60);
-} // degreeToRadian
+}// degreeToRadian()
 
 /** @brief Converts the input radians to degrees */
 double radianToDegree(const double radian) {
     return radian * 180 / PI;
-} // radianToDegree
+}// radianToDegree()
 
 /** @brief create a new odom with coordinates offset from current odom by a certain lat and lon change */
 Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, const double lon_minutes) {
@@ -25,7 +28,7 @@ Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, cons
     newOdom.longitude_deg += static_cast<int32_t>(total_lon_min) / 60;
 
     return newOdom;
-} // addMinToDegrees
+}// addMinToDegrees()
 
 /** @brief Estimate approximate distance using euclidean methods */
 double estimateDistance(const Odometry& current, const Odometry& dest) {
@@ -37,7 +40,7 @@ double estimateDistance(const Odometry& current, const Odometry& dest) {
     double diffLat = (destLat - currentLat);
     double diffLon = (destLon - currentLon) * cos((currentLat + destLat) / 2);
     return sqrt(diffLat * diffLat + diffLon * diffLon) * EARTH_RADIUS;
-} // estimateDistance
+}// estimateDistance()
 
 /***
  * @param current           Current position
@@ -51,7 +54,7 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
     double lonChange = distance * sin(absoluteBearing) * rover->longMeterInMinutes();
     Odometry newOdom = addMinToDegrees(current, latChange, lonChange);
     return newOdom;
-} // createOdom
+}// createOdom()
 
 /***
  * @param current   Current position
@@ -62,7 +65,7 @@ Odometry createOdom(const Odometry& current, Vector2d offset, const std::shared_
     double bearing = radianToDegree(atan2(offset.y(), offset.x()));
     double distance = offset.norm();
     return createOdom(current, bearing, distance, rover);
-} // createOdom
+}// createOdom()
 
 /**
  * Approximate the LHS bearing (clockwise rotation in positive) between two global odometries.
@@ -90,7 +93,7 @@ double estimateBearing(const Odometry& start, const Odometry& dest) {
         }
     }
     return radianToDegree(bearing);
-} // estimateBearing
+}// estimateBearing()
 
 /**
  * Calculates the modulo of value with the given modulus.
@@ -99,7 +102,7 @@ double estimateBearing(const Odometry& start, const Odometry& dest) {
 double mod(double value, double modulus) {
     double mod = fmod(value, modulus);
     return mod < 0 ? mod + modulus : mod;
-} // mod()
+}// mod()
 
 Odometry createOdom(double latitude, double longitude) {
     double latitudeDeg;
@@ -110,9 +113,8 @@ Odometry createOdom(double latitude, double longitude) {
     longitudeMin *= 60.0;
     return Odometry{
             static_cast<int32_t>(latitudeDeg), latitudeMin,
-            static_cast<int32_t>(longitudeDeg), longitudeMin
-    };
-} // createOdom
+            static_cast<int32_t>(longitudeDeg), longitudeMin};
+}// createOdom()
 
 /***
  * @param current   From position
@@ -123,4 +125,4 @@ Vector2d getOffsetInCartesian(Odometry current, Odometry target) {
     double bearing = degreeToRadian(estimateBearing(current, target));
     double distance = estimateDistance(current, target);
     return {distance * cos(bearing), distance * sin(bearing)};
-} // getOffsetInCartesian
+}// getOffsetInCartesian()

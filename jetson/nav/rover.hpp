@@ -1,28 +1,27 @@
 #pragma once
 
-#include <queue>
-#include <memory>
 #include <chrono>
-
+#include <ctime>
 
 #include <lcm/lcm-cpp.hpp>
+#include <rapidjson/document.h>
 
-#include "rover_msgs/Enable.hpp"
-#include "rover_msgs/Bearing.hpp"
-#include "rover_msgs/Course.hpp"
-#include "rover_msgs/Obstacle.hpp"
-#include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/TargetList.hpp"
-#include "rover_msgs/Waypoint.hpp"
-#include "rover_msgs/AutonDriveControl.hpp"
-#include "rover_msgs/ProjectedPoints.hpp"
-#include "rapidjson/document.h"
 #include "courseProgress.hpp"
 #include "environment.hpp"
 #include "pid.hpp"
-#include <ctime>
-#include <chrono>
+#include "rover_msgs/AutonDriveControl.hpp"
+#include "rover_msgs/Bearing.hpp"
+#include "rover_msgs/Course.hpp"
+#include "rover_msgs/Enable.hpp"
+#include "rover_msgs/Obstacle.hpp"
+#include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/ProjectedPoints.hpp"
+#include "rover_msgs/TargetList.hpp"
+#include "rover_msgs/Waypoint.hpp"
+
+// TODO: replace with function
 #define NOW std::chrono::high_resolution_clock::now()
+
 using namespace rover_msgs;
 
 enum class NavState {
@@ -51,7 +50,7 @@ enum class NavState {
 
     // Unknown State
     Unknown = 255
-}; // AutonState
+};// AutonState
 
 class Rover {
 public:
@@ -102,15 +101,11 @@ private:
     // Interface for communicating messages to and from the base station
     lcm::LCM& mLcmObject;
 
-<<<<<<< HEAD
     // The pid loop for turning.
     PidLoop mTurningBearingPid;
 
     // The pid loop for turning while driving
     PidLoop mDriveBearingPid;
-=======
-    PidLoop mBearingPid;
->>>>>>> c243a36a (Start documenting navigation better. removing some commented out code and dead code. added clang format)
 
     // The conversion factor from arcminutes to meters. This is based n the rover's current latitude.
     double mLongMeterInMinutes;
@@ -124,4 +119,4 @@ private:
     bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
 
     std::chrono::_V2::system_clock::time_point mTurnStartTime, mBackingUpStartTime;
-};
+};// Rover

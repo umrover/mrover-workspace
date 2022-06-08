@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 /***
  * Readings from the sensor may occasionally have invalid readings.
  * A cache attempts to resolve this by saving old values for a bit
@@ -12,10 +10,10 @@
 template<typename T>
 class Cache {
 public:
-    Cache(int neededHits, int neededMisses, T invalidDefault) :
-            mNeededHits(neededHits),
-            mNeededMisses(neededMisses),
-            mInvalidDefault(invalidDefault) {}
+    Cache(int neededHits, int neededMisses, T invalidDefault)
+        : mNeededHits(neededHits),
+          mNeededMisses(neededMisses),
+          mInvalidDefault(invalidDefault) {}
 
     T get() const {
         return mValid ? mCurrentReading : mInvalidDefault;

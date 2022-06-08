@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
+#include <memory>
 #include <optional>
 
 #include <eigen3/Eigen/Core>
 
-#include "rover.hpp"
-#include "filter.hpp"
 #include "cache.hpp"
+#include "filter.hpp"
+#include "rover.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 
