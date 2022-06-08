@@ -4,11 +4,7 @@
 
 #include <cmath>
 
-PidLoop::PidLoop(double p, double i, double d) :
-        mP(p),
-        mI(i),
-        mD(d) {
-}
+PidLoop::PidLoop(double p, double i, double d) : mP(p), mI(i), mD(d) {}
 
 double PidLoop::error(double current, double desired) const {
     if (mMaxInputBeforeWrap) {
@@ -18,13 +14,14 @@ double PidLoop::error(double current, double desired) const {
         double error = desired - current;
         if (std::fabs(error) > maxInput / 2) {
             if (error > 0) error -= maxInput;
-            else error += maxInput;
+            else
+                error += maxInput;
         }
         return error;
     } else {
         return desired - current;
     }
-}
+}// error()
 
 double PidLoop::update(double current, double desired, double dt) {
     if (dt < 1e-6) {
@@ -45,30 +42,30 @@ double PidLoop::update(double current, double desired, double dt) {
     if (effort > mMaxOut) effort = mMaxOut;
 
     return effort;
-}
+}// update()
 
 void PidLoop::reset() {
     mFirst = true;
     mTotalError = 0.0;
     mLastError = 0.0;
-}
+}// reset()
 
 PidLoop& PidLoop::withThreshold(double threshold) {
     mThreshold = threshold;
     return *this;
-}
+}// withThreshold()
 
 PidLoop& PidLoop::withMaxInput(double maxInputBeforeWrap) {
     mMaxInputBeforeWrap = maxInputBeforeWrap;
     return *this;
-}
+}// withMaxInput()
 
 PidLoop& PidLoop::withOutputRange(double minOut, double maxOut) {
     mMinOut = minOut;
     mMaxOut = maxOut;
     return *this;
-}
+}// withOutputRange()
 
 bool PidLoop::isOnTarget(double current, double desired) const {
     return std::fabs(error(current, desired)) < mThreshold;
-}
+}// isOnTarget()

@@ -7,10 +7,8 @@
 
 class StateMachine;
 
-// This class is the representation of different
-// search algorithms
 enum class SearchType {
-    FROM_PATH_FILE = 0, 
+    FROM_PATH_FILE = 0,
     FROM_PATH_FILE_GATE = 1
 };
 
@@ -24,8 +22,6 @@ public:
     virtual ~SearchStateMachine() = default;
 
     NavState run();
-
-//    bool targetReachable(std::shared_ptr<Rover> rover, double distance, double bearing);
 
     virtual void initializeSearch(const rapidjson::Document& roverConfig, double pathWidth) = 0; // TODO
 
@@ -64,8 +60,5 @@ private:
     bool mDrivenToFirstPost = false;
 };
 
-// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
-// avoidance algorithm. This allows for an an ease of transition between obstacle
-// avoidance algorithms
 std::shared_ptr<SearchStateMachine>
 SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);

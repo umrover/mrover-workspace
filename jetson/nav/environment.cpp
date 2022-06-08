@@ -1,20 +1,19 @@
-#include <cmath>
-
-#include "utilities.hpp"
 #include "environment.hpp"
 
-Environment::Environment(const rapidjson::Document& config) :
-        mConfig(config),
-        mTargetLeft(mConfig["navThresholds"]["cacheHitMax"].GetInt(), mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
-        mTargetRight(mConfig["navThresholds"]["cacheHitMax"].GetInt(), mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
-        mPostOneLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mPostOneLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mPostTwoLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mPostTwoLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mLeftTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mLeftTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mRightTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mRightTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()) {}
+#include "utilities.hpp"
+
+Environment::Environment(const rapidjson::Document& config)
+    : mConfig(config),
+      mTargetLeft(mConfig["navThresholds"]["cacheHitMax"].GetInt(), mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
+      mTargetRight(mConfig["navThresholds"]["cacheHitMax"].GetInt(), mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
+      mPostOneLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mPostOneLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mPostTwoLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mPostTwoLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mLeftTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mLeftTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mRightTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+      mRightTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()) {}
 
 /***
  * @param targets New target data from perception to update our filters.
@@ -25,24 +24,21 @@ void Environment::setTargets(TargetList const& targets) {
     mTargetLeft.put((leftTargetRaw.distance != -1 && leftTargetRaw.id != -1), leftTargetRaw);
     mTargetRight.put((rightTargetRaw.distance != -1 && rightTargetRaw.id != -1), rightTargetRaw);
 
-    if (mTargetLeft.isValid()){
+    if (mTargetLeft.isValid()) {
         mLeftTargetBearing.push(mTargetLeft.get().bearing);
         mLeftTargetDistance.push(mTargetLeft.get().distance);
-    }
-    else{
+    } else {
         mLeftTargetDistance.reset();
         mLeftTargetBearing.reset();
     }
-    if (mTargetRight.isValid()){
+    if (mTargetRight.isValid()) {
         mRightTargetBearing.push(mTargetRight.get().bearing);
         mRightTargetDistance.push(mTargetRight.get().distance);
-    }
-    else{
+    } else {
         mRightTargetDistance.reset();
         mRightTargetBearing.reset();
     }
-    
-}
+}// setTargets()
 
 /***
  * Update our estimate for where the post is with our current filtered values.
@@ -95,64 +91,64 @@ void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_pt
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
     }
-}
+}// updatePost()
 
 void Environment::setObstacle(Obstacle const& obstacle) {
     mObstacle = obstacle;
-}
+}// setObstacle()
 
 Obstacle Environment::getObstacle() {
     return mObstacle;
-}
+}// getObstacle()
 
 Target Environment::getLeftTarget() const {
     return {mLeftTargetDistance.get(), mLeftTargetBearing.get(), mTargetLeft.get().id};//mTargetLeft.get();
-}
+}// getLeftTarget()
 
 Target Environment::getRightTarget() const {
     return {mRightTargetDistance.get(), mRightTargetBearing.get(), mTargetRight.get().id};//mTargetRight.get();
-}
+}// getRightTarget()
 
 void Environment::setBaseGateID(int baseGateId) {
     mBaseGateId = baseGateId;
-}
+}// setBaseGateID()
 
 bool Environment::hasNewPostUpdate() const {
     return mHasNewPostUpdate;
-}
+}// hasNewPostUpdate()
 
 bool Environment::hasGateLocation() const {
     return hasPostOneLocation() && hasPostTwoLocation();
-}
+}// hasGateLocation()
 
 bool Environment::hasPostOneLocation() const {
     return mPostOneLat.ready();
-}
+}// hasPostOneLocation()
 
 bool Environment::hasPostTwoLocation() const {
     return mPostTwoLat.ready();
-}
+}// hasPostTwoLocation()
 
-void Environment::setShouldLookForGate(bool gate){
+void Environment::setShouldLookForGate(bool gate) {
     mLookForGate = gate;
-}
+}// setShouldLookForGate()
 
 Odometry Environment::getPostOneLocation() const {
     return createOdom(mPostOneLat.get(), mPostOneLong.get());
-}
+}// getPostOneLocation()
 
 Odometry Environment::getPostTwoLocation() const {
     return createOdom(mPostTwoLat.get(), mPostTwoLong.get());
-}
+}// getPostTwoLocation()
 
 // Offset of the post in our linearized cartesian space.
 Vector2d Environment::getPostOneOffsetInCartesian(Odometry cur) const {
     return getOffsetInCartesian(cur, getPostOneLocation());
-}
+}// getPostOneOffsetInCartesian()
 
 Vector2d Environment::getPostTwoOffsetInCartesian(Odometry cur) const {
     return getOffsetInCartesian(cur, getPostTwoLocation());
-}
+}// getPostTwoOffsetInCartesian()
 
 std::optional<Target> Environment::tryGetTargetWithId(int32_t id) const {
     if (mTargetLeft.get().id == id && mTargetLeft.get().distance > 0.0) {
@@ -161,4 +157,4 @@ std::optional<Target> Environment::tryGetTargetWithId(int32_t id) const {
         return {mTargetRight.get()};
     }
     return std::nullopt;
-}
+}// tryGetTargetWithId()

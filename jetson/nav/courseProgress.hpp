@@ -1,7 +1,7 @@
 #pragma once
 
-#include <deque>
 #include "rover_msgs/Course.hpp"
+#include <deque>
 
 
 using namespace rover_msgs;
