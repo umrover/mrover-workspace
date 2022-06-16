@@ -1,0 +1,2 @@
+moteus==0.3.30
+moteus-pi3hat==0.3.13

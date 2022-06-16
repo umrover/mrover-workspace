@@ -2,7 +2,7 @@ Code to control the zed gimbal, using pi3hat and moteus
 ===============================================
 ### About
 
-zed_gimbal_bridge is responsible for connecting the rover network's LCM interface with the zed gimbal system's motor controller, the moteus.
+zed_gimbal_bridge is responsible for connecting the rover network's LCM interface with the zed gimbal system's motor controller, the moteus. Note that this code has never actually been used on the rover.
 
 ### LCM Channels
 #### Zed Gimbal Position \[Publisher\] "/zed_gimbal_data"
