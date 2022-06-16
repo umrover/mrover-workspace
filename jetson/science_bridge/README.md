@@ -9,45 +9,6 @@ science nucleo to operate the science boxes and get relevant data.
 - STM32G050C8 custom board
 - RX/TX connection cables 
 
-### Carousel Open Loop Command
-Writes an NMEA like message over UART to the Nucleo in order to move the carousel motor a velocity in open loop.
-#### LCM Channels Publishing/Subscribed To
-**Carousel Open Loop Command [subscriber]** \
-Messages: [CarouselOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselOpenLoopCmd.lcm) "/carousel_openloop_cmd" \
-Publishers: base_station/gui \
-Subscribers: jetson/science_bridge
-#### UART Message
-Format of the UART NMEA command
-- `$OpenCarousel,<throttle>,<extra padding>`
-- String is 30 characters long
-- The throttle is between -1 and 1
-
-### Carousel Closed Loop Command
-Writes an NMEA like message over UART to the Nucleo in order to move the carousel motor to a specific site.
-#### LCM Channels Publishing/Subscribed To
-**Carousel Closed Loop Command [subscriber]** \
-Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_closedloop_cmd" \
-Publishers: base_station/gui \
-Subscribers: jetson/science_bridge
-#### UART Message
-Format of the UART NMEA command
-- `$Carousel,<site>,<extra padding>`
-- String is 30 characters long
-- The site is either 0, 1, or 2
-
-### Carousel Data
-Reads the site the carousel was last in.
-#### LCM Channels Publishing/Subscribed To
-**Carousel Data [publisher]** \
-Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_data" \
-Publishers: jetson/science_bridge \
-Subscribers: base_station/gui
-#### UART Message
-Format of the data string
-- `$CAROUSEL,<site>,<extra padding>`
-- String is 20 characters long
-- The site is either 0, 1, or 2
-
 ### Spectral Sensor Data
 Reads the 6 channel data from 3 different spectral sensors in one NMEA style sentence from an STM32 Nucleo Board over UART. 
 #### LCM Channels Publishing/Subscribed To
@@ -93,16 +54,16 @@ Messages: [MosfetCmd.lcm](https://github.com/umrover/mrover-workspace/blob/main/
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 
-**Nav Status [subscriber]** \
-Messages: [NavStatus.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/NavStatus.lcm) "/nav_status" \
-Publishers: jetson/nav \
+**Auton LED Cmd [subscriber]** \
+Messages: [AutonLed.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/AutonLed.lcm) "/auton_led" \
+Publishers: jetson/teleop \
 Subscribers: jetson/science_bridge
 
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$LED,<led_state>,<extra padding>`
 - String is 30 characters long
-- The device represents the mosfet device being activated (0 to 11)
+- led_state can be 0 for red, 1 for blue, 2 for blinking green (blink 6 times in 12 seconds), and 3 for no colors
 
 ### Servo Cmd
 Writes NMEA like messages over UART to the Nucleo in order to move servo to specific angles (in degrees). 
@@ -113,7 +74,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Servo,<angle0>,<angle1>,<angle2>,<extra padding>`
+- `$SERVO,<angle0>,<angle1>,<angle2>,<extra padding>`
 - String is 30 characters long
 - The angles are in degrees
 
@@ -127,7 +88,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$MOSFET,<device>,<enable>,<extra padding>`
 - String is 30 characters long
 - The device represents the mosfet device being activated
 - Heaters are mosfet devices 5, 6, and 7
@@ -150,12 +111,12 @@ Format of the data string
 Writes NMEA like messages over UART to the Nucleo in order to turn the auto shutdown feature for heater on or off. 
 #### LCM Channels Publishing/Subscribed To 
 **Heater Command [subscriber]** \
-Messsages: [HeaterAutoShutdown.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/HeaterAutoShutdown.lcm) "/heater_auto_shutdown_cmd" \
+Messsages: [Enable.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/Enable.lcm) "/heater_auto_shutdown_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$AutoShutoff,<enable>,<extra padding>`
+- `$AUTOSHUTOFF,<enable>,<extra padding>`
 - String is 30 characters long
 - The enable represents whether or not auto shutoff should be enabled or not
 
@@ -163,7 +124,7 @@ Format of the UART NMEA command
 Reads data on whether or not the heater auto shutdown feature is on.
 #### LCM Channels Publishing/Subscribed To
 **Heater Auto Shutdown Data [Publisher]** \
-Messages: [HeaterAutoShutdown.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/HeaterAutoShutdown.lcm) "/heater_auto_shutdown_data" \
+Messages: [Enable.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/Enable.lcm) "/heater_auto_shutdown_data" \
 Publishers: jetson/science_bridge\
 Subscribers: jetson/teleop
 #### UART Message
@@ -179,6 +140,8 @@ Format of the data string
 - [X] Pass the linter
 - [ ] Code clean up
 - [ ] Move beaglebone stuff into config file
-- [ ] Need better support for Auton LEDs
-- [ ] Create function for padding
+- [X] Need better support for Auton LEDs - move it to nucleos
+- [X] Create function for padding
 - [ ] Don't need to wait for all tags to be seen
+- [X] Change to all caps for msgs from jetson to nucleo (make sure to change nucleo end too)
+- [ ] Update on README once led changes are made

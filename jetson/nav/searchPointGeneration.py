@@ -2,45 +2,90 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import enum
+from math import sin, cos, pi
+
 
 def generateSpiralSearchPoints(radius, sides, coils):
     awayStep = radius/sides
     aroundStep = coils/sides
     aroundRadians = aroundStep * 2 * math.pi
-    coordinates = [(0,0)]
+    coordinates = [(0, 0)]
     for i in range(1, sides+1):
         away = i * awayStep
         around = i * aroundRadians
-        x =  math.cos(around) * away
+        x = math.cos(around) * away
         y = math.sin(around) * away
-        coordinates.append((x,y))
+        coordinates.append((x, y))
     return coordinates
-    
+
+
 def generateEquidistantSpiralSearchPoints(radius, distance, coils, rotation):
     thetaMax = coils * 2 * math.pi
     awayStep = radius / thetaMax
     theta = distance / awayStep
-    coordinates = [(0,0)]
+    coordinates = [(0, 0)]
     while theta <= thetaMax:
         away = awayStep * theta
         around = theta + rotation
         x = math.cos(around) * away
         y = math.sin(around) * away
-        coordinates.append((x,y))
+        coordinates.append((x, y))
         theta += distance / away
     return coordinates
 
-def generateSquareSpiral (points, distance):
-    directions = [(0,1), (1,0), (0,-1), (-1,0)]
-    coordinates = [(0,0)]
+
+def generateSquareSpiral(points, distance):
+    directions = [(0, 1), (-1, 0), (0, -1), (1, 0)]
+    coordinates = [(0, 0)]
     new_distance = distance
-    for i in range(0,points):
-        coordinates.append( (coordinates[-1][0]+new_distance*directions[i%4][0], coordinates[-1][1]+new_distance*directions[i%4][1]) )
-        new_distance += (i%2)*distance
+    for i in range(0, points):
+        coordinates.append((coordinates[-1][0]+new_distance*directions[i %
+                           4][0], coordinates[-1][1]+new_distance*directions[i % 4][1]))
+        new_distance += (i % 2)*distance
+    # divide up each segment into intermediate segments
+    intermediate_len = 6
+    new_coordinates = []
+    for i in range(0, len(coordinates) - 1):
+        new_coordinates.append(coordinates[i])
+        p1, p2 = np.array(coordinates[i]), np.array(coordinates[i+1])
+        direction = (p2 - p1) / np.linalg.norm((p2 - p1))
+        cur = p1
+        while np.linalg.norm((p2 - cur)) > intermediate_len:
+            new_point = cur + (direction * intermediate_len)
+            new_coordinates.append((new_point[0], new_point[1]))
+            cur = new_point
+
+    new_coordinates.append(coordinates[-1])
     return coordinates
 
-def generateSquareSpiralInward (points, distance):
-    return generateSquareSpiral(points, distance)[::-1] 
+
+def generateHexagonSpiral(points, distance):
+    # lowkey hacky
+    forward = np.array([0, 1])
+    directions = []
+    print(np.linspace(0, 2 * pi, num=6))
+    for theta in np.linspace(0, 2 * pi, num=7):
+        print(theta)
+        rot_mat = np.array(
+            [[cos(theta), -sin(theta)], [sin(theta), cos(theta)]])
+        dir_vec = np.dot(forward, rot_mat)
+        directions.append(dir_vec)
+    # return directions
+    coordinates = [(0, 0)]
+    new_distance = distance
+
+    for i in range(points):
+        cur = np.array([coordinates[-1][0], coordinates[-1][1]])
+        new_distance += (distance / 3)
+        nex = cur + (directions[i % 6] * new_distance)
+        coordinates.append((nex[0], nex[1]))
+
+    return coordinates
+
+
+def generateSquareSpiralInward(points, distance):
+    return generateSquareSpiral(points, distance)[::-1]
+
 
 def showCoords(coordinates):
     x_coords = [i[0] for i in coordinates]
@@ -48,46 +93,59 @@ def showCoords(coordinates):
     plt.scatter(x_coords, y_coords)
     for i in range(1, len(x_coords)):
         plt.plot(x_coords[i-1:i+1], y_coords[i-1:i+1], 'ro-')
+    plt.grid()
     plt.show()
+
 
 def cart2pol(x, y):
     rho = np.sqrt(x**2 + y**2)
     phi = -1 * (np.arctan2(y, x) * 180 / math.pi - 90)
     return(rho, phi)
 
+
 class SearchType(enum.Enum):
     point_equidistant_spiral = '0'
     radially_equidistant_spiral = '1'
     square_spiral = '2'
+    hex_spiral = '3'
 
-print("\n-----Search types-----\nRadially Equidistant Spiral: 0\nPoint Equidistant Spiral: 1\nSquare Spiral: 2\n")
+
+print("\n-----Search types-----\nRadially Equidistant Spiral: 0\nPoint Equidistant Spiral: 1\nSquare Spiral: 2\n Hex Spiral: 3 \n")
 search_type = input("Select a search type: ")
-if search_type == SearchType.point_equidistant_spiral.value: # POINT EQUIDISTANCE SPIRAL
-    # generateSpiralSearchPoints 
+if search_type == SearchType.point_equidistant_spiral.value:  # POINT EQUIDISTANCE SPIRAL
+    # generateSpiralSearchPoints
     #           (Radius of spiral, Number of Points, Number of coils)
     radius = float(input("Enter a radius: "))
     sides = int(input("Enter the number of points: "))
     coils = int(input("Enter the number of coils: "))
-    coords = generateSpiralSearchPoints(radius, sides, coils) # Try (20, 200, 10) to see basic example
-elif search_type == SearchType.radially_equidistant_spiral.value: # RADIALLY EQUIDISTANT SPIRAL
-    # generateSpiralSearchPoints 
+    # Try (20, 200, 10) to see basic example
+    coords = generateSpiralSearchPoints(radius, sides, coils)
+elif search_type == SearchType.radially_equidistant_spiral.value:  # RADIALLY EQUIDISTANT SPIRAL
+    # generateSpiralSearchPoints
     #           (Radius of spiral, Distance between points, Number of coils, Rotation from start)
     radius = float(input("Enter a radius: "))
     distance = float(input("Enter distance between points: "))
     coils = int(input("Enter number of coils: "))
     rotation = float(input("Enter rotation of spiral start (degrees): "))
-    coords = generateEquidistantSpiralSearchPoints(radius, distance, coils, rotation) # Try (20, 1.2, 10, 90) to see basic example
-elif search_type == SearchType.square_spiral.value: # SQUARE SPIRAL SEARCH
+    coords = generateEquidistantSpiralSearchPoints(
+        radius, distance, coils, rotation)  # Try (20, 1.2, 10, 90) to see basic example
+elif search_type == SearchType.square_spiral.value:  # SQUARE SPIRAL SEARCH
     # generateSquareSpiral
     #           (number of points, distance between each coil of the spiral)
     number_of_points = int(input("Enter Number of Points: "))
     distance = float(input("Enter Distance Between Points: "))
-    coords = generateSquareSpiral(number_of_points, distance) # Currently, we use (13,3) as arguements
+    # Currently, we use (13,3) as arguements
+    coords = generateSquareSpiral(number_of_points, distance)
     spiral_in = (input("Do You Want to Spiral In? (y/n)") == 'y')
     if spiral_in:
         coords += generateSquareSpiralInward(number_of_points, distance)
+elif search_type == SearchType.hex_spiral.value:
+    number_of_points = int(input("Enter Number of Points: "))
+    distance = float(input("Enter Distance Between Points: "))
+    # Currently, we use (13,3) as arguements
+    coords = generateHexagonSpiral(number_of_points, distance)
 else:
-    print ("Not a valid type")
+    print("Not a valid type")
     exit(1)
 show_coords = input("Do you want to display the search coordinates? (y/n)")
 if show_coords == 'y':
@@ -98,9 +156,9 @@ name = 'spiral_search_points.txt'
 if custom_name != 'n':
     name = custom_name
 
-with open('jetson/nav/search/'+name, 'w') as f:
+with open('search/'+name, 'w') as f:
     # print (len(coords), file=f)
-    for x,y in coords:
-        polar_coord = cart2pol(x,y)
+    for x, y in coords:
+        polar_coord = cart2pol(x, y)
         # (Rho (distance), Phi (angle))
         print(polar_coord[0], polar_coord[1], file=f)

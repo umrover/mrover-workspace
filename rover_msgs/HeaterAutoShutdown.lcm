@@ -1,5 +1,0 @@
-package rover_msgs;
-
-struct HeaterAutoShutdown {
-    boolean auto_shutdown_enabled;
-}

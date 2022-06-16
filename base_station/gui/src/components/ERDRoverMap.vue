@@ -6,9 +6,18 @@
       <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint, index in waypointList" :key="index">
-        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-      </l-marker>
+      <div v-for="(waypoint, index) in waypointList" :key="index">
+        <div v-if="index===highlightedWaypoint">
+          <l-marker :lat-lng="waypoint.latLng" :icon="highlightedWaypointIcon">
+             <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
+          </l-marker>
+        </div>
+        <div v-else>
+          <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon">
+             <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
+          </l-marker>
+        </div>
+      </div>
 
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
@@ -29,7 +38,7 @@ import L from '../leaflet-rotatedmarker.js'
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
 const onlineUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const offlineUrl = '/static/map/{z}/{x}/{y}.png'
+const offlineUrl = '/static/map/{z}/{x}/{y}.jpg'
 
 export default {
   name: 'RoverMap',
@@ -56,11 +65,18 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.highlightedWaypointIcon = L.icon({
+      iconUrl: '/static/map_marker_highlighted.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
   },
 
   computed: {
     ...mapGetters('erd', {
-      waypointList: 'waypointList'
+      waypointList: 'waypointList',
+      highlightedWaypoint: "highlightedWaypoint",
     }),
 
     odomLatLng: function () {
@@ -81,6 +97,7 @@ export default {
       offlineUrl: offlineUrl,
       roverMarker: null,
       waypointIcon: null,
+      highlightedWaypointIcon: null,
       map: null,
       odomCount: 0,
       locationIcon: null,

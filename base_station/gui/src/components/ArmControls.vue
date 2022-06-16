@@ -1,19 +1,26 @@
 <template>
   <div class="wrap">
     <h3> Arm controls </h3>
-    <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
-    <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
-    <div class="keyboard">
-      <GimbalControls/>
+    <div class="controls">
+      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
+    </div>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode !== "calibrating"'>
+      Joint B not calibrated!
+      <button v-on:click="startCalibration()">Calibrate</button>
+    </div>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode === "calibrating"'>
+      Calibrating Joint B...
+      <button v-on:click="abortCalibration()">Abort</button>
     </div>
   </div>
 </template>
 
 <script>
+import EncoderCounts from './EncoderCounts.vue'
 import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
-import GimbalControls from './GimbalControls.vue'
 
 let interval;
 
@@ -24,7 +31,10 @@ export default {
 
       stateInput: {
         state: "off"
-      }
+      },
+
+      jointBIsCalibrated: false,
+      calibrationTimer: -1
     }
   },
 
@@ -43,7 +53,7 @@ export default {
   created: function () {
 
     // Subscribe to requests to change state from IK backend
-    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+    this.$parent.subscribe('/arm_control_state', (msg) => {
       console.log('received new state: ' + msg.state)
 
       var new_state = msg.state
@@ -60,12 +70,26 @@ export default {
 
       if (new_state === 'closed-loop' || new_state === 'open-loop') {
         this.$refs[new_state].toggle()
-        this.setControlMode(new_state)
       }
-      else {
-        this.setControlMode('off')
+      
+      this.setControlMode(new_state)
+    })
+
+    this.$parent.subscribe('/ik_reset', (msg) => {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
       }
 
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    })
+
+    this.$parent.subscribe('/ra_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
+    })
+
+    this.$parent.subscribe('/sa_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
     })
 
     this.$parent.subscribe('/ik_reset', (msg) => {
@@ -233,14 +257,53 @@ export default {
       return false
     },
 
+    updateCalibrationStatus: function(msg) {
+      if (msg.calibrated && !this.jointBIsCalibrated) {
+        clearTimeout(this.calibrationTimer)
+
+        const armStateMsg = {
+          'type': 'ArmControlState',
+          'state': 'off'
+        }
+
+        this.$parent.publish('/arm_control_state', armStateMsg)
+      }
+
+      this.jointBIsCalibrated = msg.calibrated
+    },
+
+    startCalibration: function() {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'calibrating'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+
+      this.calibrationTimer = setTimeout(() => {
+        this.abortCalibration()
+      }, 20000)
+    },
+
+    abortCalibration: function() {
+      clearTimeout(this.calibrationTimer)
+      
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'off'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
+
     ...mapMutations('controls', {
       setControlMode: 'setControlMode'
     })
   },
 
   components: {
-    Checkbox,
-    GimbalControls
+    EncoderCounts,
+    Checkbox
   }
 }
 </script>
@@ -251,6 +314,7 @@ export default {
   display: inline-block;
   align-items: center;
   justify-items: center;
+  width: 100%;
 }
 .controls {
   display: flex;
@@ -259,6 +323,13 @@ export default {
 .header {
   display:flex;
   align-items:center;
+}
+.joint-b-calibration {
+  display: flex;
+  gap: 10px;
+  width: 250px;
+  font-weight: bold;
+  color: red;
 }
 
 </style>

@@ -21,19 +21,16 @@
     </div>
 
     <div class="box1 data" v-bind:style="{backgroundColor: nav_state_color}">
-     <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
-     <div class="raw-data raw-sensors">
+      <h2>Nav State: {{this.nav_status.nav_state_name}}</h2>
+      <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-        <br>
-        <br>
         <Obstacle v-bind:Obstacle="Obstacle"/>
-        <br>
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
         <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
         <PlaybackAutonData/>
-     </div>
+      </div>
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
@@ -45,7 +42,8 @@
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box cameras light-bg">
-      <AutonCameras v-if="!this.autonEnabled" />
+      <Cameras v-bind:numCams="2" v-bind:mission="'Auton'" v-bind:channel="'/cameras_control'"/>
+      <GimbalControls/>
     </div>
   </div>
 
@@ -54,7 +52,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import RoverMap from './AutonRoverMap.vue'
-import AutonCameras from './AutonCameras.vue'
+import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
@@ -67,6 +65,7 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
 import PlaybackAutonData from './PlaybackAutonData.vue'
+import GimbalControls from './GimbalControls.vue'
 
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
@@ -98,8 +97,8 @@ export default {
         completed_wps: 0,
         total_wps: 0
       },
-      nav_state_color: "red",
-      nav_counter: 0,
+      navBlink: false,
+      greenHook: false,
 
       GPS: {
         latitude_deg: 38,
@@ -168,37 +167,58 @@ export default {
 
   computed: {
     ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
+      autonEnabled: 'autonEnabled',
+      teleopEnabled: 'teleopEnabled'
     }),
+
+    nav_state_color: function() {
+      if(this.teleopEnabled){
+        return navBlue
+      }
+      else if(this.autonEnabled){
+        if(this.nav_status.nav_state_name == "Done" && this.navBlink){
+          return navGreen
+        }
+        else if(this.nav_status.nav_state_name == "Done" && !this.navBlink){
+          return navGrey
+        }
+        else{
+          return navRed
+        }
+      }
+      return navRed
+    },
+  },
+
+  watch: {
+    nav_state_color: function(color){
+      let ledMsg = {
+        type: 'AutonLed',
+        color: 'Null'
+      }
+      if(color == navBlue){
+        ledMsg.color = 'Blue'
+        this.greenHook = false
+      }
+      else if(color == navRed){
+        ledMsg.color = 'Red'
+        this.greenHook = false
+      }
+      else if(color == navGreen && !this.greenHook){
+        ledMsg.color = 'Green'
+        this.greenHook = true //Accounting for the blinking between navGrey and navGreen
+      }
+      if(!this.greenHook || ledMsg.color == 'Green'){
+        this.publish('/auton_led',ledMsg)
+      }
+    }
   },
 
   created: function () {
 
     setInterval(() => {
-      if(this.nav_status.nav_state_name == "Off"){
-        this.nav_state_color = navBlue
-      }
-      else if(this.nav_status.nav_state_name == "Done"){
-        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
-          this.nav_state_color = navGreen
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
-          this.nav_state_color = navGrey
-          this.nav_counter = 0
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
-          this.nav_state_color = navGreen
-          this.nav_counter = 0
-        }
-      }
-      else{
-        this.nav_state_color = navRed
-      }
-      this.nav_counter = this.nav_counter + 1
-      if(this.nav_counter >= 5){
-        this.nav_count = 0
-      }
-    }, 100);
+      this.navBlink = !this.navBlink
+    }, 500);
 
     this.lcm_ = new LCMBridge(
       'ws://localhost:8001',
@@ -263,7 +283,7 @@ export default {
 
   components: {
     RoverMap,
-    AutonCameras,
+    Cameras,
     CommIndicator,
     ArmControls,
     DriveControls,
@@ -274,7 +294,8 @@ export default {
     TargetList,
     DriveVelDataH,
     SaveAutonData,
-    PlaybackAutonData
+    PlaybackAutonData,
+    GimbalControls
   }
 }
 </script>
@@ -333,6 +354,11 @@ export default {
 
   .header h1 {
     margin-left: 5px;
+  }
+
+  h2 {
+    padding: 2px;
+    margin: 0px;
   }
 
   .spacer {

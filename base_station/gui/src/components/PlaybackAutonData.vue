@@ -20,7 +20,11 @@ export default {
       gps_bearing: [],
       target_bearing: [],
       waypoint_lat: [],
-      waypoint_lon: []
+      waypoint_lon: [],
+      projected_points_lats: [],
+      projected_points_lons: [],
+      projected_points_types: [],
+      nav_state: []
     }
   },
 
@@ -32,7 +36,11 @@ export default {
       setPlaybackOdomLon: 'setPlaybackOdomLon',
       setPlaybackOdomBearing: 'setPlaybackOdomBearing',
       setPlaybackGpsBearing: 'setPlaybackGpsBearing',
-      setPlaybackTargetBearing: 'setPlaybackTargetBearing'
+      setPlaybackTargetBearing: 'setPlaybackTargetBearing',
+      setPlaybackProjectedLat: 'setPlaybackProjectedLat',
+      setPlaybackProjectedLon: 'setPlaybackProjectedLon',
+      setPlaybackProjectedType: 'setPlaybackProjectedType',
+      setPlaybackNavState: 'setPlaybackNavState'
     }),
 
     upload_log: function() {
@@ -67,6 +75,12 @@ export default {
           let waypoint_lat_idx = 0
           let waypoint_lon_idx = 0
 
+          let projected_points_lat_idx = 0
+          let projected_points_lon_idx = 0
+          let projected_points_type_idx = 0
+
+          let nav_state_idx = 0
+
           for (let i = 0; i < parsed_data[0].length; i++) {
             switch (parsed_data[0][i]) {
               case 'Odom Degrees Lat':
@@ -95,6 +109,18 @@ export default {
                 break
               case 'First Waypoint Lon':
                 waypoint_lon_idx = i
+                break
+              case 'Projected Path Lat':
+                projected_points_lat_idx = i
+                break
+              case 'Projected Path Lon':
+                projected_points_lon_idx = i
+                break
+              case 'Projected Path Type':
+                projected_points_type_idx = i
+                break
+              case 'Nav State':
+                nav_state_idx = i
                 break
             }
           }
@@ -135,6 +161,17 @@ export default {
               this.waypoint_lat.push(waypoint_lat)
               this.waypoint_lon.push(waypoint_lon)
             }
+
+            this.projected_points_lats.push(parsed_data[i][projected_points_lat_idx].split('&').map((str) => {
+              return parseFloat(str)
+            }))
+            this.projected_points_lons.push(parsed_data[i][projected_points_lon_idx].split('&').map((str) => {
+              return parseFloat(str)
+            }))
+
+            this.projected_points_types.push(parsed_data[i][projected_points_type_idx])
+
+            this.nav_state.push(parsed_data[i][nav_state_idx])
           }
 
           for (let i = 0; i < this.waypoint_lat.length; i++) {
@@ -147,6 +184,10 @@ export default {
           this.setPlaybackOdomBearing(this.odom_bearing)
           this.setPlaybackGpsBearing(this.gps_bearing)
           this.setPlaybackTargetBearing(this.target_bearing)
+          this.setPlaybackProjectedLat(this.projected_points_lats)
+          this.setPlaybackProjectedLon(this.projected_points_lons)
+          this.setPlaybackProjectedType(this.projected_points_types)
+          this.setPlaybackNavState(this.nav_state)
 
           console.log("SUCCESSFULLY READ DATA!")
           this.setPlaybackEnabled(true)
@@ -159,7 +200,11 @@ export default {
           this.target_bearing = []
           this.waypoint_lat = []
           this.waypoint_lon = []
-        }) // end callback
+          this.projected_points_lats = []
+          this.projected_points_lons = []
+          this.projected_points_types = []
+          this.nav_state = []
+        }) // end callback for reader
 
         reader.readAsBinaryString(file)
       }

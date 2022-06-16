@@ -9,8 +9,8 @@ import {
   RoverState,
   Speeds,
   TargetListMessage,
-  ZedGimbalPosition,
-  ProjectedPointsMessage
+  ProjectedPointsMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 
 
@@ -50,8 +50,8 @@ const state:RoverState = {
   },
 
   obstacleMessage: {
-    distance: -1,
-    bearing: 0
+    numObstacles: -1,
+    obstacles: []
   },
 
   projectedPointsMessage: {

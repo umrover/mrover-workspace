@@ -3,11 +3,12 @@
 
 import {
   FieldOfViewOptions,
-  Obstacle,
-  ObstacleMessage,
+  ObstacleField,
   Odom,
   Point2D,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  Obstacle,
+  ObstacleMessage
 } from '../../utils/types';
 import {
   calcDistAndBear,
@@ -17,9 +18,9 @@ import {
   compassModDeg,
   odomToCanvas,
   radToDeg,
-  transformPoint
+  transformPoint,
+  obstacleFieldToBoundingBox
 } from '../../utils/utils';
-import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import { ROVER } from '../../utils/constants';
 
 /**************************************************************************************************
@@ -52,19 +53,22 @@ export default class ObstacleDetector {
   private obsDist = -1; /* meters */
 
   /* list of all obstacles on field */
-  private obstacles!:Obstacle[];
+  private obstacles!:ObstacleField[];
 
   /* scale of the canvas in pixels/meter */
   private scale!:number;
 
   /* obstacles visible to the rover */
-  private visibleObstacles!:Obstacle[];
+  private visibleObstacles!:ObstacleField[];
 
   /* position of the ZED's gimbal */
   private zedGimbalPos!:ZedGimbalPosition;
 
   /* location of the ZED (i.e. rover's eyes) */
   private zedOdom!:Odom;
+
+  /* size of the Obstacle */
+  private size!:number;
 
   /************************************************************************************************
    * Public Methods
@@ -73,7 +77,7 @@ export default class ObstacleDetector {
   constructor(
       currOdom:Odom,
       zedGimbalPos:ZedGimbalPosition,
-      obstacles:Obstacle[],
+      obstacles:ObstacleField[],
       fov:FieldOfViewOptions,
       fieldCenterOdom:Odom,
       canvasHeight:number, /* pixels */
@@ -97,129 +101,149 @@ export default class ObstacleDetector {
     /* Step 1: filter out obstacles not in field of view */
     this.visibleObstacles = this.obstacles.filter((obs) => this.isObsVisible(obs));
 
-    /* Step 2: find distance to closest obstacle in path (-1 if no obstacles) */
-    this.findClosestObs();
-
-    /* Step 3: Check if our current path clear */
-    obsMsg = this.isPathClear(this.zedOdom.bearing_deg);
-    if (obsMsg !== null) {
-      obsMsg.distance = -1;
-      return obsMsg;
-    }
-
-    /* Step 4: find open intervals */
-    const closedIntervals:Interval[] = [];
-    this.visibleObstacles.forEach((obs) => {
-      /* [meters, radians from north] */
-      const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, obs.odom);
-
-      /* relative angle from rover to obstacle in degrees */
-      const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
-
-      /* angle formed by center of obstacle, rover, and edge of obstacle in
-         degrees (equates to solving an SSS triangle). This uses law of signs to
-         find the angles of the triangle: cos(A) = (b^2 + c^2 - a^2) / 2bc.
-         Note that since this will form an isosceles triangle, c = b.
-         A visual of this can be viewed on the team google drive:
-         https://drive.google.com/open?id=12x-ImdIOt_TJqijZ7b8_DF2l7Spkxc7y */
-      const numerator:number = (2 * (dist ** 2)) - ((obs.size / 2) ** 2);
-      const denominator:number = 2 * (dist ** 2);
-      if (denominator !== 0) {
-        /* Bound ratio by -1 and 1 so that acos doesn't return NaN. This could
-           happen if we are on top of the obstacle. */
-        const ratio:number = Math.max(-1, Math.min(1, numerator / denominator));
-        const deltaBear:number = radToDeg(Math.abs(Math.acos(ratio)));
-        closedIntervals.push([relBear - deltaBear, relBear + deltaBear]);
-      }
-      else {
-        /* If distance to obstacle is 0, it would cover our entire field of
-           view. */
-        closedIntervals.push([-this.fov.angle / 2, this.fov.angle / 2]);
-      }
+    // Conver all visible obstacles to bounding box
+    const obstaclesList:Obstacle[] = [];
+    this.visibleObstacles.forEach((obsField) => {
+      const obs = obstacleFieldToBoundingBox(obsField, this.currOdom);
+      obstaclesList.push(obs);
     });
-    const intervalHeap:OpenIntervalHeap = new OpenIntervalHeap(-this.fov.angle / 2,
-                                                               this.fov.angle / 2, closedIntervals);
 
-    /* Step 5: Pick biggest interval that rover can fit through */
-    /* path width = rover width + 0.25 meters on each side */
-    const pathWdth = ROVER.width + (2 * OBS_PAD); /* meters */
+    obsMsg = { numObstacles: obstaclesList.length, obstacles: obstaclesList };
 
-    /* degrees */
-    const minIntervalSize:number = 2 * radToDeg(Math.asin(pathWdth / 2 / this.fov.depth));
-
-    let openInterval:Interval|null = intervalHeap.getNextOpenInterval();
-    while (openInterval !== null) {
-      /* If the interval is too small for the rover, then all remaining intervals are as well. */
-      if (openInterval[1] - openInterval[0] < minIntervalSize) {
-        break;
-      }
-
-      /* Step 5b: Search through sub-intervals of size minIntervalSize within openInterval. */
-      /* If interval is to the right, search sub-intervals left to right */
-      if ((openInterval[0] + openInterval[1]) / 2 > 0) {
-        for (let start:number = openInterval[0]; /* relative degrees */
-          start <= openInterval[1] - minIntervalSize;
-          start += 1) {
-          const end:number = start + minIntervalSize; /* relative degrees */
-          const angle = start + (end / 2); /* relative degrees */
-          obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
-          if (obsMsg !== null) {
-            return obsMsg;
-          }
-        }
-      }
-
-      /* If interval is to the left, search sub-intervals right to left */
-      else {
-        for (let end:number = openInterval[1]; /* relative degrees */
-          end >= openInterval[0] + minIntervalSize;
-          end -= 1) {
-          const start:number = end - minIntervalSize; /* relative degrees */
-          const angle = start + (end / 2); /* relative degrees */
-          obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
-          if (obsMsg !== null) {
-            return obsMsg;
-          }
-        }
-      }
-
-      /* Go to next open interval. */
-      openInterval = intervalHeap.getNextOpenInterval();
-    }
-
-    /* Step 6: If no intervals work, pick left or right edge of field of view */
-    let angle!:number;
-
-    /* If left side has more open, go left of fov */
-    if (intervalHeap.minOccupied > 0) {
-      angle = intervalHeap.minOccupied - (minIntervalSize / 2);
-    }
-
-    /* If right side has more open, go right of fov */
-    else if (intervalHeap.maxOccupied < 0) {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
-
-    /* If right side has more open, go right of fov */
-    else if (Math.abs(intervalHeap.minOccupied) > intervalHeap.maxOccupied) {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
-
-    /* If left side has more open, go left of fov */
-    else if (Math.abs(intervalHeap.minOccupied) < intervalHeap.maxOccupied) {
-      angle = intervalHeap.minOccupied - (minIntervalSize / 2);
-    }
-
-    /* If both sides equally occupied, randomly go right of fov */
-    else {
-      angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
-    }
-
-    return {
-      distance: this.obsDist,
-      bearing: angle
-    };
+    return obsMsg;
   } /* computeObsMsg() */
+
+  /* Calculate the Obstacle LCM message --- OLD OBSTACLE INTERFACE
+     Left it here for reference */
+  // computeObsMsg():ObstacleMessage {
+  //   let obsMsg:ObstacleMessage|null = null;
+
+  //   /* Step 1: filter out obstacles not in field of view */
+  //   this.visibleObstacles = this.obstacles.filter((obs) => this.isObsVisible(obs));
+
+  //   /* Step 2: find distance to closest obstacle in path (-1 if no obstacles) */
+  //   this.findClosestObs();
+
+  //   /* Step 3: Check if our current path clear */
+  //   obsMsg = this.isPathClear(this.zedOdom.bearing_deg);
+  //   if (obsMsg !== null) {
+  //     obsMsg.distance = -1;
+  //     return obsMsg;
+  //   }
+
+  //   /* Step 4: find open intervals */
+  //   const closedIntervals:Interval[] = [];
+  //   this.visibleObstacles.forEach((obs) => {
+  //     /* [meters, radians from north] */
+  //     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, obs.odom);
+
+  //     /* relative angle from rover to obstacle in degrees */
+  //     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
+
+  //     /* angle formed by center of obstacle, rover, and edge of obstacle in
+  //        degrees (equates to solving an SSS triangle). This uses law of signs to
+  //        find the angles of the triangle: cos(A) = (b^2 + c^2 - a^2) / 2bc.
+  //        Note that since this will form an isosceles triangle, c = b.
+  //        A visual of this can be viewed on the team google drive:
+  //        https://drive.google.com/open?id=12x-ImdIOt_TJqijZ7b8_DF2l7Spkxc7y */
+  //     const numerator:number = (2 * (dist ** 2)) - ((obs.size / 2) ** 2);
+  //     const denominator:number = 2 * (dist ** 2);
+  //     if (denominator !== 0) {
+  //       /* Bound ratio by -1 and 1 so that acos doesn't return NaN. This could
+  //          happen if we are on top of the obstacle. */
+  //       const ratio:number = Math.max(-1, Math.min(1, numerator / denominator));
+  //       const deltaBear:number = radToDeg(Math.abs(Math.acos(ratio)));
+  //       closedIntervals.push([relBear - deltaBear, relBear + deltaBear]);
+  //     }
+  //     else {
+  //       /* If distance to obstacle is 0, it would cover our entire field of
+  //          view. */
+  //       closedIntervals.push([-this.fov.angle / 2, this.fov.angle / 2]);
+  //     }
+  //   });
+  //   const intervalHeap:OpenIntervalHeap = new OpenIntervalHeap(-this.fov.angle / 2,
+  //   this.fov.angle / 2, closedIntervals);
+
+  //   /* Step 5: Pick biggest interval that rover can fit through */
+  //   /* path width = rover width + 0.25 meters on each side */
+  //   const pathWdth = ROVER.width + (2 * OBS_PAD); /* meters */
+
+  //   /* degrees */
+  //   const minIntervalSize:number = 2 * radToDeg(Math.asin(pathWdth / 2 / this.fov.depth));
+
+  //   let openInterval:Interval|null = intervalHeap.getNextOpenInterval();
+  //   while (openInterval !== null) {
+  //     /* If the interval is too small for the rover, then all remaining intervals are as well. */
+  //     if (openInterval[1] - openInterval[0] < minIntervalSize) {
+  //       break;
+  //     }
+
+  //     /* Step 5b: Search through sub-intervals of size minIntervalSize within openInterval. */
+  //     /* If interval is to the right, search sub-intervals left to right */
+  //     if ((openInterval[0] + openInterval[1]) / 2 > 0) {
+  //       for (let start:number = openInterval[0]; /* relative degrees */
+  //         start <= openInterval[1] - minIntervalSize;
+  //         start += 1) {
+  //         const end:number = start + minIntervalSize; /* relative degrees */
+  //         const angle = start + (end / 2); /* relative degrees */
+  //         obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
+  //         if (obsMsg !== null) {
+  //           return obsMsg;
+  //         }
+  //       }
+  //     }
+
+  //     /* If interval is to the left, search sub-intervals right to left */
+  //     else {
+  //       for (let end:number = openInterval[1]; /* relative degrees */
+  //         end >= openInterval[0] + minIntervalSize;
+  //         end -= 1) {
+  //         const start:number = end - minIntervalSize; /* relative degrees */
+  //         const angle = start + (end / 2); /* relative degrees */
+  //         obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
+  //         if (obsMsg !== null) {
+  //           return obsMsg;
+  //         }
+  //       }
+  //     }
+
+  //     /* Go to next open interval. */
+  //     openInterval = intervalHeap.getNextOpenInterval();
+  //   }
+
+  //   /* Step 6: If no intervals work, pick left or right edge of field of view */
+  //   let angle!:number;
+
+  //   /* If left side has more open, go left of fov */
+  //   if (intervalHeap.minOccupied > 0) {
+  //     angle = intervalHeap.minOccupied - (minIntervalSize / 2);
+  //   }
+
+  //   /* If right side has more open, go right of fov */
+  //   else if (intervalHeap.maxOccupied < 0) {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   /* If right side has more open, go right of fov */
+  //   else if (Math.abs(intervalHeap.minOccupied) > intervalHeap.maxOccupied) {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   /* If left side has more open, go left of fov */
+  //   else if (Math.abs(intervalHeap.minOccupied) < intervalHeap.maxOccupied) {
+  //     angle = intervalHeap.minOccupied - (minIntervalSize / 2);
+  //   }
+
+  //   /* If both sides equally occupied, randomly go right of fov */
+  //   else {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   return {
+  //     distance: this.obsDist,
+  //     bearing: angle
+  //   };
+  // } /* computeObsMsg() */
 
   /* Update canvas height on change. */
   updateCanvasHeight(newCanvasHeight:number /* pixels */):void {
@@ -238,7 +262,7 @@ export default class ObstacleDetector {
   } /* updateFov() */
 
   /* Update obstacles list on change. */
-  updateObstacles(newObstacles:Obstacle[]):void {
+  updateObstacles(newObstacles:ObstacleField[]):void {
     this.obstacles = newObstacles;
   } /* updateObstacles() */
 
@@ -259,47 +283,52 @@ export default class ObstacleDetector {
   /* Set obsDist to the distance to the closest obstacle. */
   private findClosestObs():void {
     let minDist = Infinity;
+    let tempSize = 0;
     for (let i = 0; i < this.visibleObstacles.length; i += 1) {
-      const obs:Obstacle = this.visibleObstacles[i];
+      const obs:ObstacleField = this.visibleObstacles[i];
       let dist:number = calcDistAndBear(this.zedOdom, obs.odom)[0];
       dist -= obs.size / 2;
       if (dist < minDist) {
         minDist = dist;
+        tempSize = this.visibleObstacles[i].size;
       }
     }
 
     if (minDist === Infinity) {
       this.obsDist = -1;
+      this.size = 0;
     }
     else {
       if (minDist < 0) {
         minDist = 0;
       }
       this.obsDist = minDist;
+      this.size = tempSize;
     }
   } /* findClosestObs() */
 
   /* Does there appear to be a clear path in the direction of angle (angle is
      in degrees from north)? */
-  private isPathClear(angle:number):ObstacleMessage|null {
-    for (let i = 0; i < this.visibleObstacles.length; i += 1) {
-      if (this.isObsInPath(this.visibleObstacles[i], angle)) {
-        return null;
-      }
-    }
+  // private isPathClear(angle:number):ObstacleOld|null {
+  //   for (let i = 0; i < this.visibleObstacles.length; i += 1) {
+  //     if (this.isObsInPath(this.visibleObstacles[i], angle)) {
+  //       return null;
+  //     }
+  //   }
 
-    return {
-      distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
-      bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
-    };
-  } /* isPathClear() */
+  //   return {
+  //     distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
+  //     bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle),
+  //     size: this.size
+  //   };
+  // } /* isPathClear() */
 
   /* Is obs in a path in the direction of angle. Note that this does not take
      into account the field of view angles. This works because when this
      function is called we have already filtered out the non-visible obstacles.
      A visual of this can be viewed on the team google drive:
      https://drive.google.com/open?id=19d0Meyjjbjb5X7W5VQUFeIY3iJwj1PPV */
-  private isObsInPath(obs:Obstacle, angle:number /* degrees */):boolean {
+  private isObsInPath(obs:ObstacleField, angle:number /* degrees */):boolean {
     /* Locations of objects in pixels */
     const obsLocPx:Point2D = odomToCanvas(obs.odom, this.fieldCenterOdom,
                                           this.canvasHeight, this.scale);
@@ -402,7 +431,7 @@ export default class ObstacleDetector {
   /* Determine if obs is currently visible.
      A visual of this can be viewed on the team google drive:
      https://drive.google.com/open?id=1ph_1FzBkFkgKH5QcgHnnoaKyqOWukiUx */
-  private isObsVisible(obs:Obstacle):boolean {
+  private isObsVisible(obs:ObstacleField):boolean {
     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, obs.odom);
     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
 

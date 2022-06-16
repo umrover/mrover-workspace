@@ -6,6 +6,13 @@
 		"kD": 0.0
 	},
 
+	"driveBearingPid":
+	{
+		"kP": 0.05,
+		"kI": 0.0,
+		"kD": 0.0
+	},
+
 	"distancePid":
 	{
 		"kP": 0.2,
@@ -74,7 +81,6 @@
 	{
 		"order": [0, 1],
 		"numSearches": 2,
-		"bailThresh": 20.0,
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
 		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"

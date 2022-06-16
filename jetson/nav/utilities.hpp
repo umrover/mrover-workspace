@@ -1,19 +1,19 @@
 #pragma once
 
-#include <deque>
 #include <memory>
-#include "rover_msgs/Waypoint.hpp"
-#include "rover_msgs/Odometry.hpp"
-#include "rover.hpp"
+
 #include "environment.hpp"
+#include "rover.hpp"
+#include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/Waypoint.hpp"
 
 
 using namespace rover_msgs;
 
-const int EARTH_RADIUS = 6371000; // meters
-const int EARTH_CIRCUM = 40075000; // meters
-const double PI = 3.141592654; // radians
-const double LAT_METER_IN_MINUTES = 0.0005389625; // minutes/meters
+const int EARTH_RADIUS = 6371000;                // meters
+const int EARTH_CIRCUM = 40075000;               // meters
+const double PI = 3.141592654;                   // radians
+const double LAT_METER_IN_MINUTES = 0.0005389625;// minutes/meters
 
 double degreeToRadian(double degree, double minute = 0);
 
@@ -40,5 +40,3 @@ double doesVectorIntersectCircle();
 Odometry createOdom(double latitude, double longitude);
 
 Vector2d getOffsetInCartesian(Odometry current, Odometry target);
-
-

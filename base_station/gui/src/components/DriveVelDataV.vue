@@ -24,13 +24,13 @@
     </tr>
     <tr>
       <td class = "tableElement">Current</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.current}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.current.toFixed(2)}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.current.toFixed(2)}} amps</td>
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.velocity.toFixed(2)}} m/sec</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Middle</td>
@@ -39,13 +39,13 @@
     </tr>
     <tr>
       <td class = "tableElement">Current</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.current}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.current.toFixed(2)}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.current.toFixed(2)}} amps</td>
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.velocity.toFixed(2)}} m/sec</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Back</td>
@@ -54,13 +54,13 @@
     </tr>
     <tr>
       <td class = "tableElement">Current</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.current}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.current.toFixed(2)}} amps</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.current.toFixed(2)}} amps</td>
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.velocity.toFixed(2)}} m/sec</td>
     </tr>
   </tbody>
   </table>
@@ -82,9 +82,9 @@
       </thead>
       <tbody>
           <tr>
-              <td class = "tableElement">{{drive_state_data.leftState}}</td>
-              <td class = "tableElement">{{drive_state_data.rightState}}</td>
-              <td class = "tableElement">{{drive_state_data.rightState}}</td>
+              <td class = "tableElement">{{drive_state_data.frontState}}</td>
+              <td class = "tableElement">{{drive_state_data.middleState}}</td>
+              <td class = "tableElement">{{drive_state_data.backState}}</td>
           </tr>
       </tbody>
   </table>
@@ -151,8 +151,9 @@ export default {
           backRight:{current: 0, velocity: 0}
         },
         drive_state_data: {
-          leftState: "Boot",
-          rightState: "Boot"
+          frontState: "Disconnected",
+          middleState: "Disconnected",
+          backState: "Disconnected"
         }
       }
     },
@@ -184,45 +185,14 @@ export default {
         }
       })
       this.$parent.subscribe('/drive_state_data', (msg) => {
-        if(msg.controller == 0){
-          if(msg.state == 0){
-            this.drive_state_data.leftState = "Boot";
-          }
-          if(msg.state == 1){
-            this.drive_state_data.leftState = "Disarmed";
-          }
-          if(msg.state == 2){
-            this.drive_state_data.leftState = "Armed";
-          }
-          if(msg.state == 3){
-            this.drive_state_data.leftState = "Calibrating";
-          }
-          if(msg.state == 4){
-            this.drive_state_data.leftState = "Error";
-          }
-          if(msg.state == 5){
-            this.drive_state_data.leftState = "Exit";
-          }
+        if(msg.odrive_index == 0){
+          this.drive_state_data.frontState = msg.state;
         }
-        if(msg.controller == 1){
-          if(msg.state == 0){
-            this.drive_state_data.rightState = "Boot";
-          }
-          if(msg.state == 1){
-            this.drive_state_data.rightState = "Disarmed";
-          }
-          if(msg.state == 2){
-            this.drive_state_data.rightState = "Armed";
-          }
-          if(msg.state == 3){
-            this.drive_state_data.rightState = "Calibrating";
-          }
-          if(msg.state == 4){
-            this.drive_state_data.rightState = "Error";
-          }
-          if(msg.state == 5){
-            this.drive_state_data.rightState = "Exit";
-          }
+        if(msg.odrive_index == 1){
+          this.drive_state_data.middleState = msg.state;
+        }
+        if(msg.odrive_index == 2){
+          this.drive_state_data.backState = msg.state;
         }
       })
     }

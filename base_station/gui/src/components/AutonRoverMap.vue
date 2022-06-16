@@ -30,7 +30,8 @@
     </l-map>
     <div class="controls">
       <div v-if="this.playbackEnabled">
-        <input type="range" min="0" :max='this.playbackLength-1' value ='0' v-model='playbackSlider'>
+        <input type="range" min="0" :max='this.playbackLength-1' value ='0' width="400px" v-model='playbackSlider'>
+        <!-- <p>State: {{ playbackState }}</p> -->
       </div>
       <div class="online">
         <label><input type="checkbox" v-model="online" />Online</label>
@@ -47,7 +48,7 @@ import L from '../leaflet-rotatedmarker.js'
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
 const onlineUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const offlineUrl = '/static/map/{z}/{x}/{y}.png'
+const offlineUrl = '/static/map/{z}/{x}/{y}.jpg'
 
 export default {
   name: 'RoverMap',
@@ -135,7 +136,11 @@ export default {
       playbackOdomLon: 'playbackOdomLon',
       playbackOdomBearing: 'playbackOdomBearing',
       playbackGpsBearing: 'playbackGpsBearing',
-      playbackTargetBearing: 'playbackTargetBearing'
+      playbackTargetBearing: 'playbackTargetBearing',
+      playbackProjectedLat: 'playbackProjectedLat',
+      playbackProjectedLon: 'playbackProjectedLon',
+      playbackProjectedType: 'playbackProjectedType',
+      playbackNavState: 'playbackNavState'
     }),
 
     odomLatLng: function () {
@@ -185,6 +190,7 @@ export default {
 
       playbackPath: [],
       playbackSlider: 0,
+      playbackState: '',
 
       options: {
         type: Object,
@@ -225,7 +231,6 @@ export default {
     ...mapMutations('autonomy',{
       setClickPoint: 'setClickPoint',
       setWaypointList: 'setWaypointList',
-      setAutonMode: 'setAutonMode',
       setOdomFormat: 'setOdomFormat'
     }),
   },
@@ -291,6 +296,11 @@ export default {
 
         this.targetBearingMarker.setRotationAngle(this.playbackTargetBearing[0])
         this.targetBearingMarker.setLatLng(latLng)
+
+        for (let i = 0; i < this.playbackProjectedLat[0].length && i < this.playbackProjectedLon[0].length; i++) {
+          this.projectedPoints.push(L.latLng(this.playbackProjectedLat[0][i], this.playbackProjectedLon[0][i]))
+        }
+        this.projectedPointsType = this.playbackProjectedType[0]
       }
     },
 
@@ -306,6 +316,11 @@ export default {
       this.targetBearingMarker.setRotationAngle(this.playbackTargetBearing[val])
       this.targetBearingMarker.setLatLng(latLng)
 
+      for (let i = 0; i < this.playbackProjectedLat[val].length && i < this.playbackProjectedLon[val].length; i++) {
+        this.projectedPoints.push(L.latLng(this.playbackProjectedLat[val][i], this.playbackProjectedLon[val][i]))
+      }
+      this.projectedPointsType = this.playbackProjectedType[val]
+
       let length_diff = val - this.playbackPath.length
 
       if (length_diff > 0) {
@@ -319,6 +334,8 @@ export default {
       else if (length_diff < 0) {
         this.playbackPath.splice(val, -1*length_diff)
       }
+
+      this.playbackState = this.playbackNavState[val]
     }
   },
 

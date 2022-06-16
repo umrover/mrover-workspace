@@ -1,26 +1,24 @@
 #pragma once
 
-#include <memory>
 #include <chrono>
+#include <memory>
 
 #include <lcm/lcm-cpp.hpp>
 
-#include "rover.hpp"
-#include "environment.hpp"
 #include "courseProgress.hpp"
-#include "search/searchStateMachine.hpp"
+#include "environment.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
+#include "rover.hpp"
+#include "search/searchStateMachine.hpp"
 
 
 using namespace rover_msgs;
 using namespace std::chrono_literals;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
-static auto const LOOP_DURATION = 0.01s;
+constexpr auto LOOP_DURATION = 0.01s;
 
-// This class implements the logic for the state machine for the
-// autonomous navigation of the rover.
 class StateMachine : public std::enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
@@ -31,8 +29,6 @@ public:
                  lcm::LCM& lcmObject);
 
     void run();
-
-    void updateObstacleDistance(double distance);
 
     void setSearcher(SearchType type);
 
@@ -91,4 +87,4 @@ private:
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 
     time_point mTimePoint, mPrevTimePoint;
-}; // StateMachine
+};// StateMachine

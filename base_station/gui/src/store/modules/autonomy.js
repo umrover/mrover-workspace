@@ -2,7 +2,9 @@
 const state = {
   route: [],
   waypointList: [],
+  highlightedWaypoint: -1,
   autonEnabled: false,
+  teleopEnabled: true,
   odomFormat: "DM",
   clickPoint: {
     lat: 0,
@@ -14,14 +16,22 @@ const state = {
   playbackOdomLon: [],
   playbackOdomBearing: [],
   playbackGpsBearing: [],
-  playbackTargetBearing: []
+  playbackTargetBearing: [],
+
+  playbackProjectedLat: [],
+  playbackProjectedLon: [],
+  playbackProjectedType: [],
+
+  playbackNavState: []
 }
 
 // getters
 const getters = {
   route: state => state.route,
   waypointList: state => state.waypointList,
+  highlightedWaypoint: state => state.highlightedWaypoint,
   autonEnabled: state => state.autonEnabled,
+  teleopEnabled: state => state.teleopEnabled,
   odomFormat: state => state.odomFormat,
   clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,
@@ -31,6 +41,10 @@ const getters = {
   playbackOdomBearing: state => state.playbackOdomBearing,
   playbackGpsBearing: state => state.playbackGpsBearing,
   playbackTargetBearing: state => state.playbackTargetBearing,
+  playbackProjectedLat: state => state.playbackOdomLat,
+  playbackProjectedLon: state => state.playbackOdomLon,
+  playbackProjectedType: state => state.playbackOdomType,
+  playbackNavState: state => state.playbackNavState,
   playbackLength: state => state.playbackOdomLat.length
 }
 
@@ -44,8 +58,16 @@ const mutations = {
     state.autonEnabled = newAutonEnabled
   },
 
+  setTeleopMode (commit, newTeleopEnabled) {
+    state.teleopEnabled = newTeleopEnabled
+  },
+
   setWaypointList (commit, newList) {
     state.waypointList = newList
+  },
+
+  setHighlightedWaypoint (commit, newWaypoint) {
+    state.highlightedWaypoint = newWaypoint
   },
 
   setOdomFormat (commit, newOdomFormat) {
@@ -78,6 +100,22 @@ const mutations = {
 
   setPlaybackTargetBearing (commit, bearing) {
     state.playbackTargetBearing = bearing
+  },
+
+  setPlaybackProjectedLat (commit, lat) {
+    state.playbackProjectedLat = lat
+  },
+
+  setPlaybackProjectedLon (commit, lon) {
+    state.playbackProjectedLon = lon
+  },
+
+  setPlaybackProjectedType (commit, type) {
+    state.playbackProjectedType = type
+  },
+
+  setPlaybackNavState (commit, nav_state) {
+    state.playbackNavState = nav_state
   }
 }
 

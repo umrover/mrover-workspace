@@ -647,7 +647,7 @@ void MRoverArm::set_to_closed_loop() {
     ArmControlState new_state;
     new_state.state = "closed-loop";
 
-    lcm_.publish("/arm_control_state_to_gui", &new_state);
+    lcm_.publish("/arm_control_state", &new_state);
     std::cout << "Changed mode to closed-loop.\n";
 
     control_state = ControlState::WAITING_FOR_TARGET;
@@ -801,12 +801,12 @@ void StandardArm::send_kill_cmd() {
     for (size_t i = 0; i < arm_state.num_joints(); ++i) {
         ra_cmd.throttle[i] = 0.0;
     }
-    lcm_.publish("/ra_openloop_cmd", &ra_cmd);
+    lcm_.publish("/ra_open_loop_cmd", &ra_cmd);
 
     HandCmd hand_cmd;
     hand_cmd.finger = 0.0;
     hand_cmd.grip = 0.0;
-    lcm_.publish("/hand_openloop_cmd", &hand_cmd);
+    lcm_.publish("/hand_open_loop_cmd", &hand_cmd);
 }
 
 ScienceArm::ScienceArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
@@ -941,10 +941,10 @@ void ScienceArm::send_kill_cmd() {
     for (size_t i = 0; i < arm_state.num_joints(); ++i) {
         sa_cmd.throttle[i] = 0.0;
     }
-    lcm_.publish("/sa_openloop_cmd", &sa_cmd);
+    lcm_.publish("/sa_open_loop_cmd", &sa_cmd);
 
     FootCmd foot_cmd;
     foot_cmd.microscope_triad = 0.0;
     foot_cmd.scoop = 0.0;
-    lcm_.publish("/foot_openloop_cmd", &foot_cmd);
+    lcm_.publish("/foot_open_loop_cmd", &foot_cmd);
 }

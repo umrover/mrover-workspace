@@ -74,8 +74,15 @@ export default {
             id0: [],
             bearing1: [],
             distance1: [],
-            id1: []
+            id1: [],
 
+            current_projected_path_lat: [],
+            current_projected_path_lon: [],
+            current_projected_path_type: "",
+
+            projected_path_lat: [],
+            projected_path_lon: [],
+            projected_path_type: []
         }
     },
 
@@ -132,6 +139,20 @@ export default {
     },
 
     created: function() {
+
+        this.$parent.subscribe('/projected_points', (msg) => {
+            this.current_projected_path_lat = []
+            this.current_projected_path_lon = []
+
+            let new_projected_list = msg.points
+
+            for (let i = 0; i < msg.pattern_size; i++) {
+                this.current_projected_path_lat.push(msg.points[i].latitude_deg + msg.points[i].latitude_min/60)
+                this.current_projected_path_lon.push(msg.points[i].longitude_deg + msg.points[i].longitude_min/60)
+            }
+
+            this.current_projected_path_type = msg.path_type
+        })
  
         // upon closing, ask user if they want to close and then download
         window.addEventListener('beforeunload', (e) =>  {
@@ -213,6 +234,10 @@ export default {
                 this.distance1.push(this.TargetList[1].distance)
                 this.id1.push(this.TargetList[1].id)
 
+                this.projected_path_lat.push(this.current_projected_path_lat)
+                this.projected_path_lon.push(this.current_projected_path_lon)
+                this.projected_path_type.push(this.current_projected_path_type)
+
                 if (this.num_logs > (seconds_to_save / update_rate) + overflow_amt) {
                     this.num_logs -= overflow_amt
                     this.timestamp.splice(0, overflow_amt)
@@ -267,6 +292,10 @@ export default {
                     this.bearing1.splice(0,overflow_amt)
                     this.distance1.splice(0,overflow_amt)
                     this.id1.splice(0,overflow_amt)
+
+                    this.projected_path_lat.splice(0, overflow_amt)
+                    this.projected_path_lon.splice(0, overflow_amt)
+                    this.projected_path_type.splice(0, overflow_amt)
                 }
             }
         }, update_rate * 1000)
@@ -286,7 +315,7 @@ export default {
                 return
             }
 
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Target Bearing,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Target Bearing,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1,Projected Path Lat,Projected Path Lon,Projected Path Type\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -340,7 +369,19 @@ export default {
                 csv += this.id0[i] + ','
                 csv += this.bearing1[i] + ','
                 csv += this.distance1[i] + ','
-                csv += this.id1[i]
+                csv += this.id1[i] + ','
+
+                for (let j = 0; j < this.projected_path_lat[i].length; j++) {
+                    csv += this.projected_path_lat[i][j].toString() + '&'
+                }
+                csv += ','
+
+                for (let j = 0; j < this.projected_path_lon[i].length; j++) {
+                    csv += this.projected_path_lon[i][j].toString() + '&'
+                }
+                csv += ','
+
+                csv += this.projected_path_type[i]
 
                 csv += '\n'
             }
@@ -411,6 +452,10 @@ export default {
             this.bearing1 = []
             this.distance1 = []
             this.id1 = []
+
+            this.projected_path_lat = []
+            this.projected_path_lon = []
+            this.projected_path_type = []
         }
     }
 }

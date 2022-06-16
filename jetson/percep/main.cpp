@@ -6,6 +6,29 @@
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 
+using namespace std::chrono_literals;
+
+class DoubleTrack{
+private:
+    double* ptr;
+    int int_value;
+
+    static constexpr double PRECISION = 100;
+
+public:
+    DoubleTrack(double* ptr) : ptr(ptr), int_value(*ptr * PRECISION) {}
+
+
+    void setup(const std::string& field_name, const std::string& window_name, double max_value) {
+        cv::createTrackbar(field_name, window_name, &int_value, max_value * PRECISION, DoubleTrack::set_double, ptr);
+    }
+
+    static void set_double(int val, void* object) {
+        *(static_cast<double*>(object)) = val / PRECISION;
+    }
+
+};
+ 
 int main() {
 
     /* --- Reading in Config File --- */
@@ -85,6 +108,42 @@ int main() {
     cam.record_ar_init();
 #endif
 
+    /* --- AR Tag Debugging --- */
+    #if AR_DETECTION && PERCEPTION_DEBUG
+        cv::namedWindow("ARUCO Debug", cv::WINDOW_AUTOSIZE);
+        cv::createTrackbar("adaptiveThreshWinSizeMin", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeMin, 50, nullptr);
+        cv::createTrackbar("adaptiveThreshWinSizeMax", "ARUCO Debug", &detector.getAlvarParams() -> adaptiveThreshWinSizeMax, 50, nullptr);
+        cv::createTrackbar("adaptiveThreshWinSizeStep", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeStep, 30, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->adaptiveThreshConstant).setup("adaptiveThreshConstant", "ARUCO Debug", 20);
+        DoubleTrack(&detector.getAlvarParams()->minMarkerPerimeterRate).setup("minMarkerPerimeterRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->maxMarkerPerimeterRate).setup("maxMarkerPerimeterRate", "ARUCO Debug", 10);
+        DoubleTrack(&detector.getAlvarParams()->polygonalApproxAccuracyRate).setup("polygonalApproxAccuracyRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->minCornerDistanceRate).setup("minCornerDistanceRate", "ARUCO Debug", 1);
+        cv::createTrackbar("minDistanceToBorder", "ARUCO Debug", &detector.getAlvarParams()->minDistanceToBorder, 10, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->minMarkerDistanceRate).setup("minMarkerDistanceRate", "ARUCO Debug", 1);
+        cv::createTrackbar("cornerRefinementWinSize", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementWinSize, 20, nullptr);
+        cv::createTrackbar("cornerRefinementMaxIterations", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementMaxIterations, 80, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->cornerRefinementMinAccuracy).setup("cornerRefinementMinAccuracy", "ARUCO Debug", 1);
+        cv::createTrackbar("markerBorderBits", "ARUCO Debug", &detector.getAlvarParams()->markerBorderBits, 10, nullptr);
+        cv::createTrackbar("perspectiveRemovePixelPerCell", "ARUCO Debug", &detector.getAlvarParams()->perspectiveRemovePixelPerCell, 10, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->perspectiveRemoveIgnoredMarginPerCell).setup("perspectiveRemoveIgnoredMarginPerCell", "ARUCO Debug", 5);
+        DoubleTrack(&detector.getAlvarParams()->maxErroneousBitsInBorderRate).setup("maxErroneousBitsInBorderRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->minOtsuStdDev).setup("minOtsuStdDev", "ARUCO Debug", 20);
+        DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
+
+    #endif
+
+    #if AR_DETECTION && STREAM_ZED
+        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
+                                    "queue ! videoconvert ! x264enc tune=zerolatency bitrate=500000 speed-preset=superfast !"
+                                    "rtph264pay ! udpsink host=10.0.0.1 port=5002";
+
+        cv::Size streamSize(256, 144);
+        cv::VideoWriter writer(gstLaunch, 0, 30, streamSize);
+        cv::Mat send(streamSize, CV_8UC3);
+
+    #endif 
+
     /* --- Main Processing Stuff --- */
     while (true) {
         //Check to see if we were able to grab the frame
@@ -96,6 +155,7 @@ int main() {
         cv::Mat src = cam.image();
         cv::Mat depth_img = cam.depth();
         cv::Mat xyz_img = cam.xyz();
+
 #endif
 
 #if OBSTACLE_DETECTION
@@ -107,7 +167,7 @@ int main() {
 #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
         int FRAME_WRITE_INTERVAL = mRoverConfig["camera"]["frame_write_interval"].GetInt();
             if (iterations % FRAME_WRITE_INTERVAL == 0) {
-                Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
+                cv::Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
 #if PERCEPTION_DEBUG
                     cout << "Copied correctly" << endl;
 #endif
@@ -123,11 +183,17 @@ int main() {
 #if AR_RECORD
         cam.record_ar(rgb);
 #endif
+#if STREAM_ZED
+        cv::Mat bgr, sendMat;
+        cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
+        cv::resize(bgr, sendMat, streamSize);
+        writer.write(sendMat);
+#endif
 
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
 
 #if PERCEPTION_DEBUG && AR_DETECTION
-//        cv::imshow("depth", depth_img);
+        cv::imshow("depth", depth_img);
         cv::waitKey(1);
 #endif
 

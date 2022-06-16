@@ -23,16 +23,15 @@
     </div>
 
     <div class="box cameras light-bg">
-      <Cameras/>
+      <Cameras v-bind:numCams="2" v-bind:mission="'ES'" v-bind:channel="'/cameras_control'"/>
+      <GimbalControls/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
-    </div>
-    <div class="box encoder light-bg">
-      <EncoderCounts/>
+      <ESArmToggles/>
     </div>
     <div class="box drive light-bg">
       <DriveControls/>
@@ -54,10 +53,11 @@ import IKControls from './IKControls.vue'
 import CommIndicator from './CommIndicator.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
-import DriveVelDataV from './DriveVelDataV.vue' 
+import DriveVelDataV from './DriveVelDataV.vue'
+import ESArmToggles from './ESArmToggles.vue'
+import GimbalControls from './GimbalControls.vue'
 
 export default {
   name: 'RATask',
@@ -108,25 +108,18 @@ export default {
         this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
-      (msg) => {
-        if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
-        }
-      },
+      (msg) => { },
       // Subscriptions
       [
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/arm_control_state', 'type': 'ArmControlState'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'}
+        {'topic': '/ik_reset', 'type': 'Signal'},
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },
@@ -136,10 +129,11 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     IKControls,
     PDBFuse,
-    DriveVelDataV
+    DriveVelDataV,
+    ESArmToggles,
+    GimbalControls
   }
 }
 </script>
@@ -149,12 +143,11 @@ export default {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px auto auto auto auto auto auto;
+    grid-template-rows: 60px auto auto auto auto;
     grid-template-areas: "header header"
                          "controls cameras"
-                         "encoder ik-controls"
                          "drive ik-controls"
-                         "pdb drive-motor"
+                         "pdb ik-controls"
                          "pdb drive-motor";
     font-family: sans-serif;
     height: auto;
@@ -264,10 +257,6 @@ export default {
 
   .drive {
     grid-area: drive;
-  }
-
-  .encoder {
-    grid-area: encoder;
   }
 
   .new-select {

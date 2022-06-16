@@ -1,8 +1,10 @@
 <template>
   <div class="wrap">
-    <h3> Drive </h3>
-    <span>Speed Limiter: {{ dampenDisplay }}%</span>
-    <Checkbox ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
+    <h4> Drive </h4>
+    <div class="controls">
+      <span>Speed Limiter: {{ dampenDisplay }}%</span>
+      <Checkbox class="reverse" ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
+    </div>
   </div>
 </template>
 
@@ -17,8 +19,18 @@ let interval;
 export default {
   data () {
     return {
-      dampen: 1.0,
+      dampen: 0,
       reverse: false
+    }
+  },
+
+  methods: {
+    updateReverse: function(checked) {
+      const reverseMsg = {
+        'type': 'ReverseDrive',
+        'reverse': checked
+      }
+      this.$parent.publish('/teleop_reverse_drive', reverseMsg);
     }
   },
 
@@ -43,7 +55,8 @@ export default {
     },
 
     ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
+      autonEnabled: 'autonEnabled',
+      teleopEnabled: 'teleopEnabled'
     }),
   },
 
@@ -64,7 +77,7 @@ export default {
 
     const updateRate = 0.05;
     interval = window.setInterval(() => {
-      if (!this.autonEnabled) {
+      if (!this.autonEnabled && this.teleopEnabled) {
         const gamepads = navigator.getGamepads()
         for (let i = 0; i < 4; i++) {
           const gamepad = gamepads[i]
@@ -94,6 +107,10 @@ export default {
         }
       }
     }, updateRate*1000)
+  },
+
+  components: {
+    Checkbox
   }
 }
 </script>
@@ -103,6 +120,22 @@ export default {
 .wrap {
   display: inline-block;
   align-items: center;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+
+h4 {
+  padding-top: 5px;
+  margin-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.reverse {
+  margin-left: 20px;
 }
 
 </style>

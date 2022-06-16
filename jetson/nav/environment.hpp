@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
+#include <memory>
 #include <optional>
 
 #include <eigen3/Eigen/Core>
 
-#include "rover.hpp"
-#include "filter.hpp"
 #include "cache.hpp"
+#include "filter.hpp"
+#include "rover.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 
@@ -36,6 +36,8 @@ private:
 
     bool mHasNewPostUpdate = false;
 
+    bool mLookForGate = false;
+
     int mBaseGateId{};
 
 public:
@@ -48,6 +50,8 @@ public:
     void setBaseGateID(int baseGateId);
 
     void setTargets(TargetList const& targets);
+
+    void setShouldLookForGate(bool gate);
 
     void updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
 
