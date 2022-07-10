@@ -48,6 +48,9 @@ export default class HotKeys extends Vue {
   private readonly simulatePercep!:boolean;
 
   @Getter
+  private readonly simulateAutonDriveControl!:boolean;
+
+  @Getter
   private readonly zedGimbalPos!:ZedGimbalPosition;
 
   /************************************************************************************************
@@ -61,6 +64,9 @@ export default class HotKeys extends Vue {
 
   @Mutation
   private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipSimulateAutonDriveControl!:(onOff:boolean)=>void;
 
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
@@ -122,6 +128,7 @@ export default class HotKeys extends Vue {
       'shift+ctrl+c': this.resetStartLoc,
       'shift+l': this.flipSimLoc,
       'shift+p': this.flipSimPercep,
+      'shift+d': this.flipSimAutonDriveControl,
       'shift+alt+d': this.setToDFormat,
       'shift+alt+m': this.setToDMFormat,
       'shift+alt+s': this.setToDMSFormat,
@@ -151,6 +158,11 @@ export default class HotKeys extends Vue {
   private flipSimPercep():void {
     this.flipSimulatePercep(!this.simulatePercep);
   } /* flipSimPercep() */
+
+  /* Turn on and off simulating auton drive control. */
+  private flipSimAutonDriveControl():void {
+    this.flipSimulateAutonDriveControl(!this.simulateAutonDriveControl);
+  } /* flipSimAutonDriveControl() */
 
   /* Apply one joystick command based on "manual" input. */
   private manaulDrive(forwardBack:number, leftRight:number):void {

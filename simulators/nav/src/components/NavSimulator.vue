@@ -152,6 +152,9 @@ export default class NavSimulator extends Vue {
   private readonly simulatePercep!:boolean;
 
   @Getter
+  private readonly simulateAutonDriveControl!:boolean;
+
+  @Getter
   private readonly enableLCM!:boolean;
 
   @Getter
@@ -388,7 +391,7 @@ export default class NavSimulator extends Vue {
             forward_back: msg.message.left_percent_velocity,
             left_right: msg.message.right_percent_velocity
           });
-          if (!this.paused) {
+          if (!this.paused && this.simulateAutonDriveControl) {
             this.applyJoystickCmd();
           }
         }

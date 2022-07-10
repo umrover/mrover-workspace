@@ -283,6 +283,7 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
+  simulateAutonDriveControl:boolean;
   enableProjectedPoints:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
