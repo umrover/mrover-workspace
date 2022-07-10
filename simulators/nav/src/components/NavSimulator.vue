@@ -439,7 +439,6 @@ export default class NavSimulator extends Vue {
 
       /* Subscriptions */
       [
-        { topic: '/autonomous',     type: 'Joystick' },
         { topic: '/auton_drive_control',     type: 'AutonDriveControl' },
         { topic: '/nav_status',     type: 'NavStatus' },
         { topic: '/obstacle_list',  type: 'ObstacleList' },
@@ -454,7 +453,7 @@ export default class NavSimulator extends Vue {
 
     /* Set up publishing LCMs */
     this.intervalLcmPublish = window.setInterval(() => {
-      this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn }, false);
+      this.publish('/auton_enabled', { type: 'Enable', enabled: this.autonOn }, false);
 
       if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
