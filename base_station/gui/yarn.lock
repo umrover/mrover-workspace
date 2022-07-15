@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@types/chart.js@^2.7.55":
+  version "2.9.37"
+  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.37.tgz#8af70862b154fedf938b5b87debdb3a70f6e3208"
+  dependencies:
+    moment "^2.10.2"
+
 "@types/geojson@*":
   version "7946.0.7"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.7.tgz#c8fa532b60a0042219cdf173ca21a975ef0666ad"
@@ -3318,9 +3324,9 @@ svelte-loader@^2.10.1:
     require-relative "^0.8.7"
     svelte-dev-helper "^1.1.9"
 
-svelte@^2.12.1:
-  version "2.13.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-2.13.2.tgz#69026ac64cca97134e4d49104e0c894ea590ff7a"
+svelte@^3.49.0:
+  version "3.49.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.49.0.tgz#5baee3c672306de1070c3b7888fc2204e36a4029"
 
 tapable@^1.0.0:
   version "1.0.0"
@@ -3540,9 +3546,11 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
-vue-chartjs@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/vue-chartjs/-/vue-chartjs-3.4.0.tgz#669e4453be0676605fc9290b3b581867ccd15c88"
+vue-chartjs@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/vue-chartjs/-/vue-chartjs-3.5.1.tgz#d25e845708f7744ae51bed9d23a975f5f8fc6529"
+  dependencies:
+    "@types/chart.js" "^2.7.55"
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.0"
