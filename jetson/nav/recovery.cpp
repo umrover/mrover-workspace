@@ -2,7 +2,7 @@
 #include "utilities.hpp"
 
 Recovery::Recovery(int offset, double dispThresh) :
-                    offset(offset), dispThresh(dispThresh){
+                    offsetAmount(offset), dispThresh(dispThresh){
 
 }//Recovery()
 
@@ -43,7 +43,7 @@ int Recovery::getDuration(time_point p1, time_point p2){
     // get duration between two points in seconds (rounded to nearest second)
     // let p1 be the newer of the time points and p2 be the later of the time points
     // for our use case
-    auto milliseconds = chrono::duration_cast<chrono::milliseconds>(p1 - p2);
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(p1 - p2);
     return int((milliseconds.count()/1000.0) + 0.5);
 }//getDuration
 
@@ -51,7 +51,7 @@ Odometry Recovery::getPointToFollow(){
     return mPath[mPathIndex];
 }
 
-void makeRecoveryPath(const std::shared_ptr<Rover>& rover){
+void Recovery::makeRecoveryPath(const std::shared_ptr<Rover>& rover){
     // generate recovery path (J turn)
     // TODO: add different recovery paths or put in config
 

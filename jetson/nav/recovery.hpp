@@ -2,8 +2,12 @@
 #include <ctime>
 #include <deque>
 #include <cmath>
+#include <memory>
+
+#include <eigen3/Eigen/Core>
 
 #include "rover_msgs/Odometry.hpp"
+#include "rover.hpp"
 
 using Eigen::Vector2d;
 using namespace rover_msgs;
