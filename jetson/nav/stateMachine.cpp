@@ -48,6 +48,8 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
+    // TOOD: update recovery object here
+
     if (mRover->autonState().enabled) {
         switch (mRover->currentState()) {
             case NavState::Off: {
