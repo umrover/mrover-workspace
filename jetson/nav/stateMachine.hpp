@@ -11,6 +11,7 @@
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 #include "rover.hpp"
 #include "search/searchStateMachine.hpp"
+#include "recovery.hpp"
 
 
 using namespace rover_msgs;
@@ -87,4 +88,10 @@ private:
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 
     time_point mTimePoint, mPrevTimePoint;
+
+    // Recovery object
+    // TODO put in config file
+    int seconds = 8;
+    double meters_threshold = 1;
+    Recovery mRecovery = Recovery(seconds,meters_threshold);
 };// StateMachine

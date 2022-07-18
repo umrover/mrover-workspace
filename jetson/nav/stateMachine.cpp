@@ -49,6 +49,16 @@ void StateMachine::run() {
     NavState nextState = NavState::Unknown;
 
     // TOOD: update recovery object here
+    if (mRover->currentState() != NavState::Done and mRover->currentState() != NavState::Off){
+
+        mRecovery.update(mRover->odometry(),now);
+
+        if (mRecovery.isStuck()){
+            std::cout << "ROVER STUCK\n";
+            std::cout << int(mRover->currentState()) << std::endl;
+        }
+    }
+
 
     if (mRover->autonState().enabled) {
         switch (mRover->currentState()) {

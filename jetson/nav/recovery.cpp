@@ -25,6 +25,7 @@ bool Recovery::isStuck(){
 void Recovery::update(Odometry currOdom, time_point currTime){
     // updates odoms deque with new data
     // and remove older data
+    // TODO: add fail safe for overloading deque with data and making program fail (so if )
 
     // add latest odom
     OdomTimePoint newOdom = {currOdom,currTime};
