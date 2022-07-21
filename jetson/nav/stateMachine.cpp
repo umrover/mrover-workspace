@@ -49,13 +49,13 @@ void StateMachine::run() {
     NavState nextState = NavState::Unknown;
 
     // TOOD: update recovery object here
-    if (mRover->currentState() != NavState::Done and mRover->currentState() != NavState::Off){
+    if (mRover->autonState().enabled){
 
         mRecovery.update(mRover->odometry(),now);
 
         if (mRecovery.isStuck()){
+            mRecovery.setRecoveryState(true);
             std::cout << "ROVER STUCK\n";
-            std::cout << int(mRover->currentState()) << std::endl;
         }
     }
 
@@ -119,6 +119,7 @@ void StateMachine::run() {
             mRover->drivingBearingPid().reset();
         }
     } else {
+        mRecovery.reset(); // TODO: possibly find another spot to put
         nextState = NavState::Off;
         mRover->setState(executeOff());
         if (nextState != mRover->currentState()) {
@@ -165,6 +166,27 @@ NavState StateMachine::executeDrive() {
     mEnv->setBaseGateID(currentWaypoint.id);
     mEnv->setShouldLookForGate(currentWaypoint.gate);
     double dt = getDtSeconds();
+
+    // recovery functionality
+    if (mRecovery.getRecoveryState()){
+        // if no recovery path has been generated, generate one
+        if (mRecovery.getRecoveryPath().empty()){
+            mRecovery.makeRecoveryPath(mRover);
+        }
+        // drive to first point in recovery path (special drive backwards function TODO)
+        if(mRover->driveBackwards(mRecovery.getPointToFollow(),mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)){
+            // mark point as complete and move to next point otherwise finish recovery manuever
+            if (mRecovery.getRecoveryPath().size() > 1){
+                mRecovery.completeCurrentRecoverypoint();
+            } else {
+                // manuever is done
+                mRecovery.reset();
+                mRecovery.setRecoveryState(false);
+            }
+        }
+        return NavState::DriveWaypoints;
+    }
+
     if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         //messy but in a rush
         std::cout << "Completed waypoint" << std::endl;

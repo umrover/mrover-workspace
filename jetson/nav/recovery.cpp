@@ -49,7 +49,8 @@ int Recovery::getDuration(time_point p1, time_point p2){
 }//getDuration
 
 Odometry Recovery::getPointToFollow(){
-    return mPath[mPathIndex];
+    // returns the point the rover should be follwing for the recovery path
+    return currentRecoverypoint;
 }
 
 void Recovery::makeRecoveryPath(const std::shared_ptr<Rover>& rover){
@@ -58,9 +59,9 @@ void Recovery::makeRecoveryPath(const std::shared_ptr<Rover>& rover){
 
     Odometry cur = rover->odometry();
 
-    double distBack = 3;
-    double distBackLeft = 2;
-    double distBackLeftLeft = 2;
+    double distBack = 4;
+    double distBackLeft = 3;
+    double distBackLeftLeft = 3;
 
     // Quick and dirty method for making points
     // can change later for less magic numbers (TODO)
@@ -79,5 +80,41 @@ void Recovery::makeRecoveryPath(const std::shared_ptr<Rover>& rover){
     mPath.push_back(back);
     mPath.push_back(backLeft);
     mPath.push_back(backLeftLeft);
+
+    currentRecoverypoint = mPath.front();
+
+}
+
+void Recovery::reset(){
+    // reset the odom stream (deque)
+    odoms.clear();
+    // reset recovery state
+    recoveryState = false;
+    // reset mPath
+    mPath.clear();
+}
+
+std::deque<Odometry> Recovery::getRecoveryPath(){
+    // returns the deque of recovery odoms / path
+    return mPath;
+}
+
+bool Recovery::getRecoveryState(){
+    // returns if rover is in recovery or not
+    return recoveryState;
+}
+
+void Recovery::setRecoveryState(bool state){
+    // set the recvoery state
+    recoveryState = state;
+}
+
+void Recovery::completeCurrentRecoverypoint(){
+
+    mPath.pop_front();
+
+    if (!mPath.empty()){
+        currentRecoverypoint = mPath.front();
+    }
 
 }

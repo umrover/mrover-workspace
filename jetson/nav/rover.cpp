@@ -112,6 +112,84 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     return false;
 }// drive()
 
+bool Rover::driveBackwards(const Odometry& destination, double stopDistance, double dt) {
+    double distance = estimateDistance(mOdometry, destination);
+    double bearing = estimateBearing(mOdometry, destination);
+    return driveBackwards(distance, bearing, stopDistance, dt);
+}// drive()
+
+bool Rover::driveBackwards(double distance, double bearing, double threshold, double dt) {
+    if (distance < threshold) {
+        mTurning = true;
+        mDriving = false;
+        mBackingUp = false;
+        mNeedToSetTurnStart = true;
+        return true;
+    }
+    if (mNeedToSetTurnStart) {
+        mTurnStartTime = NOW;
+        std::cout << "staring turn clock" << std::endl;
+        mNeedToSetTurnStart = false;
+    }
+
+    bearing = mod(bearing+180,360);
+    TargetBearing targetBearingLCM = {bearing};
+    std::string const& targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
+    mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
+    auto straightTime = std::chrono::milliseconds(2000);
+    auto totalTime = std::chrono::milliseconds(4000);
+    auto turnTimeout = std::chrono::milliseconds(15000);
+    if (mBackingUp) {
+        std::cout << "backing out" << std::endl;
+        if (NOW - mBackingUpStartTime > totalTime) {
+            mBackingUp = false;
+            mTurning = true;
+            mDriving = false;
+            mTurnStartTime = NOW;
+            std::cout << "staring turn clock" << std::endl;
+        } else if (NOW - mBackingUpStartTime > straightTime) {
+            publishAutonDriveCmd(1.0, 0.5);
+        } else {
+            publishAutonDriveCmd(1.0, 1.0);
+        }
+    } else if (mTurning) {
+        std::cout << "turning" << std::endl;
+        if (turn(bearing, dt)) {
+            mTurning = false;
+            mDriving = true;
+            mBackingUp = false;
+        }
+        if (!mBackingUp) {
+            //std::cout << NOW - mTurnStartTime << std::endl;
+            if (NOW - mTurnStartTime > turnTimeout) {
+                mBackingUpStartTime = NOW;
+                mBackingUp = true;
+                mTurning = false;
+                mDriving = false;
+            }
+        }
+    } else {
+        std::cout << "driving" << std::endl;
+        double destinationBearing = mod(bearing, 360);
+        double turningEffort = mDriveBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
+        if (mDriveBearingPid.error(mOdometry.bearing_deg, destinationBearing) > mConfig["navThresholds"]["drivingBearing"].GetDouble()) {
+            mTurning = true;
+            mTurnStartTime = NOW;
+            std::cout << "starting turn clock" << std::endl;
+            mDriving = false;
+        }
+        // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
+        // if we need to turn clockwise, turning effort will be positive, so leftVel will be 1, and rightVel will be in between 0 and 1
+        // if we need to turn ccw, turning effort will be negative, so rightVel will be 1 and leftVel will be in between 0 and 1
+        // TODO: use std::clamp
+        double leftVel = std::min(1.0, std::max(0.0, 1.0 - turningEffort));
+        double rightVel = std::min(1.0, std::max(0.0, 1.0 + turningEffort));
+        publishAutonDriveCmd(-leftVel, -rightVel);
+    }
+
+    return false;
+}// drive()
+
 /** @brief Turn to a global point */
 bool Rover::turn(Odometry const& destination, double dt) {
     double bearing = estimateBearing(mOdometry, destination);

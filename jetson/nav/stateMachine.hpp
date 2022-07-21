@@ -90,8 +90,8 @@ private:
     time_point mTimePoint, mPrevTimePoint;
 
     // Recovery object
-    // TODO put in config file
+    // TODO put in config file (change to 15 seconds for compition)
     int seconds = 8;
-    double meters_threshold = 1;
+    double meters_threshold = 1; // Test what this value should be in IRL testing
     Recovery mRecovery = Recovery(seconds,meters_threshold);
 };// StateMachine

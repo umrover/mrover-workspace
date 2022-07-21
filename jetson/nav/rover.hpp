@@ -60,6 +60,10 @@ public:
 
     bool drive(double distance, double bearing, double threshold, double dt);
 
+    bool driveBackwards(const Odometry& destination, double stopDistance, double dt);
+
+    bool driveBackwards(double distance, double bearing, double threshold, double dt);
+
     bool turn(Odometry const& destination, double dt);
 
     bool turn(double absoluteBearing, double dt);

@@ -34,10 +34,21 @@ public:
 
     void makeRecoveryPath(const std::shared_ptr<Rover>& rover);
 
+    void reset();
+
+    std::deque<Odometry> getRecoveryPath();
+
+    Odometry getPointToFollow();
+
+    bool getRecoveryState();
+
+    void setRecoveryState(bool state);
+
+    void completeCurrentRecoverypoint();
+
 private:
     int getDuration(time_point p1, time_point p2);
 
-    Odometry getPointToFollow();
 
     // how long in seconds between the offset/lagging odom
     // and the current odom
@@ -53,5 +64,11 @@ private:
     // recovery points
     std::deque<Odometry> mPath;
 
-    size_t mPathIndex = 0;
+    Odometry currentRecoverypoint;
+
+    // whether the rover is currently in recovery
+    // meaning: if we are following the recovery path (after detecting being stuck)
+    // false -> not stuck and not recovering
+    // true -> were or are stuck and are trying to recover
+    bool recoveryState = false;
 };
