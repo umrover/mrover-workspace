@@ -26,11 +26,12 @@ struct OdomTimePoint{
  */
 class Recovery {
 public:
-    Recovery(int offsetAmount, double dispThresh);
+    Recovery(std::chrono::duration<int> offsetAmount, double dispThresh,
+             std::chrono::duration<int> maxTurnTime);
 
     bool isStuck();
 
-    void update(Odometry currOdom, time_point currTime);
+    void update(Odometry currOdom, time_point currTime, bool isTurning);
 
     void makeRecoveryPath(const std::shared_ptr<Rover>& rover);
 
@@ -47,18 +48,21 @@ public:
     void completeCurrentRecoverypoint();
 
 private:
-    int getDuration(time_point p1, time_point p2);
+    std::chrono::duration<int> getDuration(time_point p1, time_point p2);
 
 
     // how long in seconds between the offset/lagging odom
     // and the current odom
-    int offsetAmount;
+    std::chrono::duration<int> offsetAmount;
+
+    // maximum turn time in seconds before rover will attempt to recover
+    std::chrono::duration<int> maxTurnTime;
 
     // what minimum threshold in displacement
     // before we say rover is stuck (in meters? TODO)
     double dispThresh;
 
-    // deque of running odoms
+    // deque of running odoms (front is the more recent odoms)
     std::deque<OdomTimePoint> odoms;
 
     // recovery points
@@ -71,4 +75,10 @@ private:
     // false -> not stuck and not recovering
     // true -> were or are stuck and are trying to recover
     bool recoveryState = false;
+
+    // state if the rover was turning
+    bool wasTurning = false;
+    // mark the start time of a turn
+    // if __ time passes and rover is still turning attempt recovery
+    time_point turnStartTime;
 };

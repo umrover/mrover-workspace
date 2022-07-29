@@ -1,31 +1,56 @@
 #include "recovery.hpp"
 #include "utilities.hpp"
 
-Recovery::Recovery(int offset, double dispThresh) :
-                    offsetAmount(offset), dispThresh(dispThresh){
+Recovery::Recovery(std::chrono::duration<int> offset, double dispThresh,
+                   std::chrono::duration<int> maxTurnTime) :
+                    offsetAmount(offset), dispThresh(dispThresh), maxTurnTime(maxTurnTime) {
 
 }//Recovery()
 
 bool Recovery::isStuck(){
-    // check displacement (TODO: have condition for if we are turning! or just don't call if we are turning?)
-    // if displacement < threshold: return true
+    // check displacement and or turn time to detect if rover is stuck
+    // if turning and time_turning > maxTurnTime: true
+    // if not turning and displacement < threshold: return true
     // else return false
 
-    double distance = estimateDistance(odoms.front().odom,odoms.back().odom);
-    if (!odoms.empty() && getDuration(odoms.front().time,odoms.back().time) >= offsetAmount && distance < dispThresh){
-        return true;
+    if (wasTurning){
+        return getDuration(odoms.front().time,turnStartTime) > maxTurnTime;
     }
     else {
-        return false;
+
+        // distance based
+        double distance = estimateDistance(odoms.front().odom,odoms.back().odom);
+
+        // note:  the displacement time stamp to statisfy condition must be >= offsetAmount
+        // but we also clear all odoms > offsetAmount
+        return (!odoms.empty() && getDuration(odoms.front().time,odoms.back().time) >= offsetAmount && distance < dispThresh);
+
     }
+
 
 
 }//isStuck()
 
-void Recovery::update(Odometry currOdom, time_point currTime){
-    // updates odoms deque with new data
-    // and remove older data
-    // TODO: add fail safe for overloading deque with data and making program fail (so if )
+void Recovery::update(Odometry currOdom, time_point currTime, bool isTurning){
+    // updates odoms deque with new data and remove older data
+    // updates turning state (switch between time based and displacement based stuck detection)
+
+    // TODO: add fail safe for overloading deque with data and making program fail
+    //       may be better to just make a circular buffer instead of using deque
+
+    // update turning state
+    // if we were not turning but we are now turning
+    if (!wasTurning && isTurning){
+        wasTurning = true;
+        turnStartTime = currTime;
+    }
+
+    // if we were turning and are now not turning
+    else if (wasTurning && !isTurning){
+        //reset displacement (as we were rotating not being displaced)
+        wasTurning = false;
+        odoms.clear();
+    }
 
     // add latest odom
     OdomTimePoint newOdom = {currOdom,currTime};
@@ -40,12 +65,12 @@ void Recovery::update(Odometry currOdom, time_point currTime){
 }//update()
 
 
-int Recovery::getDuration(time_point p1, time_point p2){
+std::chrono::duration<int> Recovery::getDuration(time_point p1, time_point p2){
     // get duration between two points in seconds (rounded to nearest second)
     // let p1 be the newer of the time points and p2 be the later of the time points
     // for our use case
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(p1 - p2);
-    return int((milliseconds.count()/1000.0) + 0.5);
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(p1 - p2);
+    return seconds;
 }//getDuration
 
 Odometry Recovery::getPointToFollow(){
@@ -92,6 +117,8 @@ void Recovery::reset(){
     recoveryState = false;
     // reset mPath
     mPath.clear();
+    // reset turning state
+    wasTurning = false;
 }
 
 std::deque<Odometry> Recovery::getRecoveryPath(){
@@ -105,7 +132,7 @@ bool Recovery::getRecoveryState(){
 }
 
 void Recovery::setRecoveryState(bool state){
-    // set the recvoery state
+    // set the recovery state
     recoveryState = state;
 }
 

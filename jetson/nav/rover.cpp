@@ -270,3 +270,8 @@ void Rover::setState(NavState state) {
 void Rover::setLongMeterInMinutes(double l) {
     mLongMeterInMinutes = l;
 }//setLongMeterInMinutes()
+
+// returns if the rover is turning or not
+bool Rover::isTurning() {
+    return mTurning;
+}//isTurning()

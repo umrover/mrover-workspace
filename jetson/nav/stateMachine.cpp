@@ -48,14 +48,18 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
-    // TOOD: update recovery object here
+    // updating recovery object here
     if (mRover->autonState().enabled){
 
-        mRecovery.update(mRover->odometry(),now);
+        mRecovery.update(mRover->odometry(),now,mRover->isTurning());
 
         if (mRecovery.isStuck()){
             mRecovery.setRecoveryState(true);
             std::cout << "ROVER STUCK\n";
+        }
+        // debug purposes
+        if (mRecovery.getRecoveryState()){
+            std::cout << "ROVER RECOVERING\n";
         }
     }
 
@@ -173,7 +177,7 @@ NavState StateMachine::executeDrive() {
         if (mRecovery.getRecoveryPath().empty()){
             mRecovery.makeRecoveryPath(mRover);
         }
-        // drive to first point in recovery path (special drive backwards function TODO)
+        // drive to first point in recovery path (special drive backwards function)
         if(mRover->driveBackwards(mRecovery.getPointToFollow(),mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)){
             // mark point as complete and move to next point otherwise finish recovery manuever
             if (mRecovery.getRecoveryPath().size() > 1){

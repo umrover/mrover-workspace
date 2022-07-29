@@ -90,6 +90,8 @@ public:
 
     void setLongMeterInMinutes(double LongMeterInMinutes);
 
+    bool isTurning();
+
 private:
     /*************************************************************************/
     /* Private Member Functions */

@@ -90,8 +90,10 @@ private:
     time_point mTimePoint, mPrevTimePoint;
 
     // Recovery object
-    // TODO put in config file (change to 15 seconds for compition)
-    int seconds = 8;
-    double meters_threshold = 1; // Test what this value should be in IRL testing
-    Recovery mRecovery = Recovery(seconds,meters_threshold);
+    // TODO put in config file
+    // Test what this value should be in IRL testing
+    std::chrono::duration<int> secondsOffset = 10s;
+    double meters_threshold = 1;
+    std::chrono::duration<int> maxTurnTime = 15s;
+    Recovery mRecovery = Recovery(secondsOffset,meters_threshold,maxTurnTime);
 };// StateMachine
