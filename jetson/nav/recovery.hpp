@@ -55,12 +55,12 @@ private:
     // and the current odom
     std::chrono::duration<int> offsetAmount;
 
-    // maximum turn time in seconds before rover will attempt to recover
-    std::chrono::duration<int> maxTurnTime;
-
     // what minimum threshold in displacement
     // before we say rover is stuck (in meters? TODO)
     double dispThresh;
+
+    // maximum turn time in seconds before rover will attempt to recover
+    std::chrono::duration<int> maxTurnTime;
 
     // deque of running odoms (front is the more recent odoms)
     std::deque<OdomTimePoint> odoms;

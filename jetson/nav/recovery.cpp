@@ -84,27 +84,32 @@ void Recovery::makeRecoveryPath(const std::shared_ptr<Rover>& rover){
 
     Odometry cur = rover->odometry();
 
-    double distBack = 4;
-    double distBackLeft = 3;
-    double distBackLeftLeft = 3;
+    double p1_dist = 3;
+    double p2_dist = 2;
+    double p3_dist = 2;
+     double p4_dist = 2;
 
     // Quick and dirty method for making points
     // can change later for less magic numbers (TODO)
 
     // point that is straight back (rover relative)
-    Odometry back = createOdom(cur,mod(cur.bearing_deg+180,360),distBack,rover);
+    Odometry back = createOdom(cur,mod(cur.bearing_deg+180,360),p1_dist,rover);
 
     // point that is further back and left (rover relative)
-    Odometry backLeft = createOdom(back,mod(cur.bearing_deg+225,360),distBackLeft,rover);
+    Odometry backLeft = createOdom(back,mod(cur.bearing_deg+200,360),p2_dist,rover);
 
     // another point that is back and further left (rover relative)
-    Odometry backLeftLeft = createOdom(backLeft,mod(cur.bearing_deg+270,360),distBackLeftLeft,rover);
+    Odometry backLeftLeft = createOdom(backLeft,mod(cur.bearing_deg+240,360),p3_dist,rover);
+
+    // another point that is back and even further left (rover relative)
+    Odometry backLeftLeftLeft = createOdom(backLeftLeft,mod(cur.bearing_deg+280,360),p4_dist,rover);
 
     mPath.clear();
 
     mPath.push_back(back);
     mPath.push_back(backLeft);
     mPath.push_back(backLeftLeft);
+    mPath.push_back(backLeftLeftLeft);
 
     currentRecoverypoint = mPath.front();
 

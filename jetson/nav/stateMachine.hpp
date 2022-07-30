@@ -45,6 +45,8 @@ public:
 
     double getDtSeconds();
 
+    std::shared_ptr<Recovery> getRecovery();
+
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
@@ -92,8 +94,8 @@ private:
     // Recovery object
     // TODO put in config file
     // Test what this value should be in IRL testing
-    std::chrono::duration<int> secondsOffset = 10s;
+    std::chrono::duration<int> secondsOffset = 5s;
     double meters_threshold = 1;
     std::chrono::duration<int> maxTurnTime = 15s;
-    Recovery mRecovery = Recovery(secondsOffset,meters_threshold,maxTurnTime);
+    std::shared_ptr<Recovery> mRecovery = std::make_shared<Recovery>(secondsOffset,meters_threshold,maxTurnTime);
 };// StateMachine
