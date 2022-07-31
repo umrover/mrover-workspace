@@ -48,12 +48,12 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
-    // updating recovery object here
-    if (mRover->autonState().enabled && mRover->currentState() != NavState::Done){
+    // updating recovery object
+    if (mRover->autonState().enabled && mRover->currentState() != NavState::Done) {
 
-        mRecovery->update(mRover->odometry(),now,mRover->isTurning());
+        mRecovery->update(mRover->odometry(), now, mRover->isTurning());
 
-        if (mRecovery->isStuck()){
+        if (mRecovery->isStuck()) {
             mRecovery->setRecoveryState(true);
             std::cout << "ROVER STUCK\n";
         }
@@ -119,7 +119,7 @@ void StateMachine::run() {
             mRover->drivingBearingPid().reset();
         }
     } else {
-        mRecovery->reset(); // TODO: possibly find another spot to put
+        mRecovery->reset();// TODO: possibly find another spot to put
         nextState = NavState::Off;
         mRover->setState(executeOff());
         if (nextState != mRover->currentState()) {
@@ -169,21 +169,35 @@ NavState StateMachine::executeDrive() {
     double dt = getDtSeconds();
 
     // recovery functionality
-    if (mRecovery->getRecoveryState()){
+    if (mRecovery->getRecoveryState()) {
         std::cout << "DriveWaypoints RECOVERY\n";
         // if no recovery path has been generated, generate one
-        if (mRecovery->getRecoveryPath().empty()){
+        if (mRecovery->getRecoveryPath().empty()) {
             mRecovery->makeRecoveryPath(mRover);
         }
-        // drive to first point in recovery path (special drive backwards function)
-        if(mRover->driveBackwards(mRecovery->getPointToFollow(),mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)){
-            // mark point as complete and move to next point otherwise finish recovery manuever
-            if (mRecovery->getRecoveryPath().size() > 1){
-                mRecovery->completeCurrentRecoverypoint();
-            } else {
-                // manuever is done
-                mRecovery->reset();
-                mRecovery->setRecoveryState(false);
+        if (mRecovery->getPointToFollow().backwards) {
+            // drive to first point in recovery path (special drive backwards function)
+            if (mRover->driveBackwards(mRecovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+                // mark point as complete and move to next point otherwise finish recovery manuever
+                if (mRecovery->getRecoveryPath().size() > 1) {
+                    mRecovery->completeCurrentRecoverypoint();
+                } else {
+                    // manuever is done
+                    mRecovery->reset();
+                    mRecovery->setRecoveryState(false);
+                }
+            }
+        } else {
+            // drive to first point in recovery path (drive forwards)
+            if (mRover->drive(mRecovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+                // mark point as complete and move to next point otherwise finish recovery manuever
+                if (mRecovery->getRecoveryPath().size() > 1) {
+                    mRecovery->completeCurrentRecoverypoint();
+                } else {
+                    // manuever is done
+                    mRecovery->reset();
+                    mRecovery->setRecoveryState(false);
+                }
             }
         }
         return NavState::DriveWaypoints;
@@ -257,6 +271,6 @@ double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }//getDtSeconds()
 
-std::shared_ptr<Recovery> StateMachine::getRecovery(){
+std::shared_ptr<Recovery> StateMachine::getRecovery() {
     return mRecovery;
 }//getRecovery()

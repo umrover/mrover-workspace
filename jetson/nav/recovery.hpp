@@ -1,21 +1,27 @@
 #include <chrono>
+#include <cmath>
 #include <ctime>
 #include <deque>
-#include <cmath>
 #include <memory>
 
 #include <eigen3/Eigen/Core>
 
-#include "rover_msgs/Odometry.hpp"
 #include "rover.hpp"
+#include "rover_msgs/Odometry.hpp"
 
 using Eigen::Vector2d;
 using namespace rover_msgs;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
-struct OdomTimePoint{
+struct OdomTimePoint {
     Odometry odom;
     time_point time;
+};
+
+struct RecoveryPoint {
+    Odometry odom;
+    // if rover should drive backwards to point
+    bool backwards;
 };
 
 
@@ -35,11 +41,13 @@ public:
 
     void makeRecoveryPath(const std::shared_ptr<Rover>& rover);
 
+    void makeTargetRecoveryPath(const std::shared_ptr<Rover>& rover, Target const& target);
+
     void reset();
 
-    std::deque<Odometry> getRecoveryPath();
+    std::deque<RecoveryPoint> getRecoveryPath();
 
-    Odometry getPointToFollow();
+    RecoveryPoint getPointToFollow();
 
     bool getRecoveryState();
 
@@ -48,8 +56,18 @@ public:
     void completeCurrentRecoverypoint();
 
 private:
+    /*************************************************************************/
+    /* Private Member Functions */
+    /*************************************************************************/
+
     std::chrono::duration<int> getDuration(time_point p1, time_point p2);
 
+    RecoveryPoint makeRecoveryPoint(const Odometry& current, double absoluteBearing, double distance,
+                                    const std::shared_ptr<Rover>& rover, bool backwards);
+
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
 
     // how long in seconds between the offset/lagging odom
     // and the current odom
@@ -66,9 +84,10 @@ private:
     std::deque<OdomTimePoint> odoms;
 
     // recovery points
-    std::deque<Odometry> mPath;
+    std::deque<RecoveryPoint> mPath;
 
-    Odometry currentRecoverypoint;
+    // current recovery point to follow
+    RecoveryPoint currentRecoverypoint;
 
     // whether the rover is currently in recovery
     // meaning: if we are following the recovery path (after detecting being stuck)
@@ -78,6 +97,7 @@ private:
 
     // state if the rover was turning
     bool wasTurning = false;
+
     // mark the start time of a turn
     // if __ time passes and rover is still turning attempt recovery
     time_point turnStartTime;

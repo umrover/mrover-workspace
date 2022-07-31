@@ -122,7 +122,7 @@ private:
 
     Odometry mOdometry{};
 
-    bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
+    bool mTurning, mDriving;
 
     std::chrono::_V2::system_clock::time_point mTurnStartTime, mBackingUpStartTime;
 };// Rover
