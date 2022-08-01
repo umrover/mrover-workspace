@@ -3,5 +3,4 @@ package rover_msgs;
 struct FootCmd {
     double auger_raise; // [-1.0, 1.0]
     double auger_spin; // [-1.0, 1.0] 
-    double microscope; // [-1.0, 1.0] 
 }

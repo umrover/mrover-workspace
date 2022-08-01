@@ -82,7 +82,6 @@ void LCMHandler::InternalHandler::foot_open_loop_cmd(LCM_INPUT, const FootCmd *m
 {
     ControllerMap::controllers["AUGER_RAISE"]->open_loop(msg->auger_raise);
     ControllerMap::controllers["AUGER_SPIN"]->open_loop(msg->auger_spin);
-    ControllerMap::controllers["MICROSCOPE"]->open_loop(msg->microscope);
 }
 
 void LCMHandler::InternalHandler::hand_open_loop_cmd(LCM_INPUT, const HandCmd *msg)

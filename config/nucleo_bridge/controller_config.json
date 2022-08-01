@@ -8,9 +8,9 @@
     },
     {
         "name":"AUGER_SPIN",
-        "type":"Motor12V",
+        "type":"HBridge",
         "nucleo": 3,
-        "channel": 1,
+        "channel": 2,
         "inversion": 1.0
     },
     {
@@ -47,13 +47,6 @@
         "nucleo": 3,
         "channel": 3,
         "inversion": -1.0
-    },
-    {
-        "name":"MICROSCOPE",
-        "type":"HBridge",
-        "nucleo": 3,
-        "channel": 2,
-        "inversion": 1.0
     },
     {
         "name":"SA_A",

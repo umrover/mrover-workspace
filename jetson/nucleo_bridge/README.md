@@ -171,6 +171,7 @@ If two devices share the same i2c address but their functions are continuously c
 - [ ] Add LCM tests to test.cpp
 - [ ] Zero-index after URC + CIRC (after Rosie)
 - [ ] Verify wrist encoder CPR
+- [ ] Integrate wrist turn count code (probably won't ever happen sad)
 - [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
 - [ ] Clean up slow down code
 - [ ] Test science arm for CIRC on actual rover
