@@ -18,9 +18,9 @@ void LCMHandler::init()
     internal_object = new InternalHandler();
 
     // Subscription to lcm channels
-    lcm_bus->subscribe("/carousel_closed_loop_cmd", &LCMHandler::InternalHandler::carousel_closed_loop_cmd, internal_object);
-    lcm_bus->subscribe("/carousel_open_loop_cmd", &LCMHandler::InternalHandler::carousel_open_loop_cmd, internal_object);
-    lcm_bus->subscribe("/carousel_zero_cmd", &LCMHandler::InternalHandler::carousel_zero_cmd, internal_object);
+    // lcm_bus->subscribe("/carousel_closed_loop_cmd", &LCMHandler::InternalHandler::carousel_closed_loop_cmd, internal_object);
+    // lcm_bus->subscribe("/carousel_open_loop_cmd", &LCMHandler::InternalHandler::carousel_open_loop_cmd, internal_object);
+    // lcm_bus->subscribe("/carousel_zero_cmd", &LCMHandler::InternalHandler::carousel_zero_cmd, internal_object);
     lcm_bus->subscribe("/foot_open_loop_cmd", &LCMHandler::InternalHandler::foot_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/hand_open_loop_cmd", &LCMHandler::InternalHandler::hand_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
@@ -80,8 +80,9 @@ void LCMHandler::InternalHandler::carousel_zero_cmd(LCM_INPUT, const Signal *msg
 
 void LCMHandler::InternalHandler::foot_open_loop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->scoop);
+    ControllerMap::controllers["AUGER_RAISE"]->open_loop(msg->auger_raise);
+    ControllerMap::controllers["AUGER_SPIN"]->open_loop(msg->auger_spin);
+    ControllerMap::controllers["MICROSCOPE"]->open_loop(msg->microscope);
 }
 
 void LCMHandler::InternalHandler::hand_open_loop_cmd(LCM_INPUT, const HandCmd *msg)

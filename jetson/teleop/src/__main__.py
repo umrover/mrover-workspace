@@ -238,8 +238,9 @@ class ArmControl:
         lcm_.publish('/sa_open_loop_cmd', openloop_msg.encode())
 
         foot_msg = FootCmd()
-        foot_msg.scoop = xboxData.a - xboxData.y
-        foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
+        foot_msg.auger_raise = xboxData.y - xboxData.a
+        foot_msg.auger_spin = xboxData.b - xboxData.x
+        foot_msg.microscope = xboxData.right_bumper - xboxData.left_bumper
         lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
 
     def send_ra_kill(self):

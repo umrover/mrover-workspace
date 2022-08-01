@@ -1,6 +1,7 @@
 package rover_msgs;
 
 struct FootCmd {
-    double microscope_triad; // [-1.0, 1.0] throttle at which to drive the SA Foot microscope and triad motor
-    double scoop; // [-1.0, 1.0] throttle at which to drive the SA Foot scoop motor
+    double auger_raise; // [-1.0, 1.0]
+    double auger_spin; // [-1.0, 1.0] 
+    double microscope; // [-1.0, 1.0] 
 }

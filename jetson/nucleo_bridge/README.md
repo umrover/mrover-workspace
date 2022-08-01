@@ -165,17 +165,15 @@ If two devices share the same i2c address but their functions are continuously c
 
 
 ### ToDo
-- [x] Test limit switch code for science arm
-- [ ] Test limit switch code for standard robotic arm
-- [X] Test joint b calibration code
-- [ ] Investigate encoder issues
+- [ ] Fix limit switch code for standard robotic arm
+- [ ] Investigate encoder issues (probably won't do)
 - [ ] Create new shield next year and make sure correct pins are traced
 - [ ] Add LCM tests to test.cpp
 - [ ] Zero-index after URC + CIRC (after Rosie)
 - [ ] Verify wrist encoder CPR
 - [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
-- [X] Create zero lcm with teleop for carousel motor
-- [X] Create closed loop for carousel motor
+- [ ] Clean up slow down code
+- [ ] Test science arm for CIRC on actual rover
 
 ### Notes
 
