@@ -11,6 +11,7 @@
 
 using Eigen::Vector2d;
 using namespace rover_msgs;
+using duration = std::chrono::duration<int>;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
 struct OdomTimePoint {
@@ -32,16 +33,15 @@ struct RecoveryPoint {
  */
 class Recovery {
 public:
-    Recovery(std::chrono::duration<int> offsetAmount, double dispThresh,
-             std::chrono::duration<int> maxTurnTime);
+    Recovery(duration offsetAmount, double dispThresh, duration maxTurnTime);
 
     bool isStuck();
 
     void update(Odometry currOdom, time_point currTime, bool isTurning);
 
-    void makeRecoveryPath(const std::shared_ptr<Rover>& rover);
+    void makeRecoveryPath(const Odometry & currOdom, double longMeterInMinutes);
 
-    void makeTargetRecoveryPath(const std::shared_ptr<Rover>& rover, Target const& target);
+    void makeTargetRecoveryPath(const Odometry & currOdom, Target const& target, double longMeterInMinutes);
 
     void reset();
 
@@ -60,10 +60,10 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
 
-    std::chrono::duration<int> getDuration(time_point p1, time_point p2);
+    duration getDuration(time_point p1, time_point p2);
 
     RecoveryPoint makeRecoveryPoint(const Odometry& current, double absoluteBearing, double distance,
-                                    const std::shared_ptr<Rover>& rover, bool backwards);
+                                    double longMeterInMinutes, bool backwards);
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -71,14 +71,14 @@ private:
 
     // how long in seconds between the offset/lagging odom
     // and the current odom
-    std::chrono::duration<int> offsetAmount;
+    duration offsetAmount;
 
     // what minimum threshold in displacement
     // before we say rover is stuck (in meters? TODO)
     double dispThresh;
 
     // maximum turn time in seconds before rover will attempt to recover
-    std::chrono::duration<int> maxTurnTime;
+    duration maxTurnTime;
 
     // deque of running odoms (front is the more recent odoms)
     std::deque<OdomTimePoint> odoms;

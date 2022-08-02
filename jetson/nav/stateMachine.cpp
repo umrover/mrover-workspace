@@ -173,7 +173,7 @@ NavState StateMachine::executeDrive() {
         std::cout << "DriveWaypoints RECOVERY\n";
         // if no recovery path has been generated, generate one
         if (mRecovery->getRecoveryPath().empty()) {
-            mRecovery->makeRecoveryPath(mRover);
+            mRecovery->makeRecoveryPath(mRover->odometry(), mRover->longMeterInMinutes());
         }
         if (mRecovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)
@@ -271,6 +271,6 @@ double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }//getDtSeconds()
 
-std::shared_ptr<Recovery> StateMachine::getRecovery() {
+std::unique_ptr<Recovery>& StateMachine::getRecovery() {
     return mRecovery;
 }//getRecovery()

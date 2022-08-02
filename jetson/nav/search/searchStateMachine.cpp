@@ -3,12 +3,9 @@
 #include "utilities.hpp"
 #include "stateMachine.hpp"
 #include "searchFromPathFile.hpp"
-#include "stateMachine.hpp"
-#include "utilities.hpp"
 
 #include <utility>
 #include <iostream>
-#include <utility>
 
 #include <eigen3/Eigen/Geometry>
 
@@ -36,6 +33,7 @@ NavState SearchStateMachine::executeSearch() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
+    std::unique_ptr<Recovery>& recovery = sm->getRecovery();
 
     Target const& leftTarget = env->getLeftTarget();
     Target const& rightTarget = env->getRightTarget();
@@ -65,35 +63,35 @@ NavState SearchStateMachine::executeSearch() {
     double dt = sm->getDtSeconds();
 
     // Recovery watch for search
-    if (sm->getRecovery()->getRecoveryState()) {
+    if (recovery->getRecoveryState()) {
         std::cout << "Search RECOVERY\n";
 
         // if no recovery path has been generated, generate one
-        if (sm->getRecovery()->getRecoveryPath().empty()) {
-            sm->getRecovery()->makeRecoveryPath(rover);
+        if (recovery->getRecoveryPath().empty()) {
+            recovery->makeRecoveryPath(rover->odometry(), rover->longMeterInMinutes());
         }
-        if (sm->getRecovery()->getPointToFollow().backwards) {
+        if (recovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)
-            if (rover->driveBackwards(sm->getRecovery()->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+            if (rover->driveBackwards(recovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
                 // mark point as complete and move to next point otherwise finish recovery manuever
-                if (sm->getRecovery()->getRecoveryPath().size() > 1) {
-                    sm->getRecovery()->completeCurrentRecoverypoint();
+                if (recovery->getRecoveryPath().size() > 1) {
+                    recovery->completeCurrentRecoverypoint();
                 } else {
                     // manuever is done
-                    sm->getRecovery()->reset();
-                    sm->getRecovery()->setRecoveryState(false);
+                    recovery->reset();
+                    recovery->setRecoveryState(false);
                 }
             }
         } else {
             // drive to first point in recovery path (drive forwards)
-            if (rover->drive(sm->getRecovery()->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+            if (rover->drive(recovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
                 // mark point as complete and move to next point otherwise finish recovery manuever
-                if (sm->getRecovery()->getRecoveryPath().size() > 1) {
-                    sm->getRecovery()->completeCurrentRecoverypoint();
+                if (recovery->getRecoveryPath().size() > 1) {
+                    recovery->completeCurrentRecoverypoint();
                 } else {
                     // manuever is done
-                    sm->getRecovery()->reset();
-                    sm->getRecovery()->setRecoveryState(false);
+                    recovery->reset();
+                    recovery->setRecoveryState(false);
                 }
             }
         }
@@ -123,6 +121,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
+    std::unique_ptr<Recovery>& recovery = sm->getRecovery();
 
     double dt = sm->getDtSeconds();
     Waypoint lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
@@ -173,39 +172,39 @@ NavState SearchStateMachine::executeDriveToTarget() {
     }
 
     // Recovery watch for DriveToTarget
-    if (sm->getRecovery()->getRecoveryState()) {
+    if (recovery->getRecoveryState()) {
         std::cout << "DriveToTarget RECOVERY\n";
 
         // if no recovery path has been generated, generate one
-        if (sm->getRecovery()->getRecoveryPath().empty()) {
-            sm->getRecovery()->makeTargetRecoveryPath(rover, leftTarget);
+        if (recovery->getRecoveryPath().empty()) {
+            recovery->makeTargetRecoveryPath(rover->odometry(), leftTarget, rover->longMeterInMinutes());
         }
-        if (sm->getRecovery()->getPointToFollow().backwards) {
+        if (recovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)
-            if (rover->driveBackwards(sm->getRecovery()->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+            if (rover->driveBackwards(recovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
                 // mark point as complete and move to next point otherwise finish recovery manuever
-                if (sm->getRecovery()->getRecoveryPath().size() > 1) {
-                    sm->getRecovery()->completeCurrentRecoverypoint();
+                if (recovery->getRecoveryPath().size() > 1) {
+                    recovery->completeCurrentRecoverypoint();
                 } else {
                     // manuever is done
-                    sm->getRecovery()->reset();
-                    sm->getRecovery()->setRecoveryState(false);
+                    recovery->reset();
+                    recovery->setRecoveryState(false);
                 }
             }
         } else {
             // drive to first point in recovery path (drive forwards)
-            if (rover->drive(sm->getRecovery()->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+            if (rover->drive(recovery->getPointToFollow().odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
                 // mark point as complete and move to next point otherwise finish recovery manuever
-                if (sm->getRecovery()->getRecoveryPath().size() > 1) {
-                    sm->getRecovery()->completeCurrentRecoverypoint();
+                if (recovery->getRecoveryPath().size() > 1) {
+                    recovery->completeCurrentRecoverypoint();
                 } else {
                     // manuever is done
-                    sm->getRecovery()->reset();
-                    sm->getRecovery()->setRecoveryState(false);
+                    recovery->reset();
+                    recovery->setRecoveryState(false);
                 }
             }
         }
-        return NavState::DriveToTarget;// TODO: check that we always only want to do this?
+        return NavState::DriveToTarget;
     }
 
     Odometry targetPoint = createOdom(rover->odometry(), bearing, distance, rover);

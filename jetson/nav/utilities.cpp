@@ -57,6 +57,20 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
 }// createOdom()
 
 /***
+ * @param current           Current position
+ * @param absoluteBearing   Absolute bearing (relative to North) in degrees
+ * @param distance          Distance in meters
+ * @return                  New odometry point in given bearing direction and distance away
+ */
+Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, double longMeterInMinutes) {
+    absoluteBearing = degreeToRadian(absoluteBearing);
+    double latChange = distance * cos(absoluteBearing) * LAT_METER_IN_MINUTES;
+    double lonChange = distance * sin(absoluteBearing) * longMeterInMinutes;
+    Odometry newOdom = addMinToDegrees(current, latChange, lonChange);
+    return newOdom;
+}// createOdom()
+
+/***
  * @param current   Current position
  * @param offset    Relative offset from the given position, (+1, 0) is North
  * @return          New odometry offset by given vector

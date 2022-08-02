@@ -13,9 +13,9 @@
 #include "search/searchStateMachine.hpp"
 #include "recovery.hpp"
 
-
 using namespace rover_msgs;
 using namespace std::chrono_literals;
+using duration =  std::chrono::duration<int>;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
 constexpr auto LOOP_DURATION = 0.01s;
@@ -45,7 +45,7 @@ public:
 
     double getDtSeconds();
 
-    std::shared_ptr<Recovery> getRecovery();
+    std::unique_ptr<Recovery>& getRecovery();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -94,8 +94,8 @@ private:
     // Recovery object
     // TODO put in config file
     // Test what this value should be in IRL testing
-    std::chrono::duration<int> secondsOffset = 5s;
+    duration secondsOffset = 5s;
     double meters_threshold = 1;
-    std::chrono::duration<int> maxTurnTime = 15s;
-    std::shared_ptr<Recovery> mRecovery = std::make_shared<Recovery>(secondsOffset,meters_threshold,maxTurnTime);
+    duration maxTurnTime = 15s;
+    std::unique_ptr<Recovery> mRecovery = std::make_unique<Recovery>(secondsOffset,meters_threshold,maxTurnTime);
 };// StateMachine
