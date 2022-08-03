@@ -26,7 +26,7 @@ bool Recovery::isStuck() {
 
 }// isStuck()
 
-void Recovery::update(Odometry currOdom, time_point currTime, bool isTurning) {
+void Recovery::update(Odometry currOdom, time_point_steady currTime, bool isTurning) {
     // updates odoms deque with new data and remove older data
     // updates turning state (switch between time based and displacement based stuck detection)
 
@@ -62,7 +62,7 @@ void Recovery::update(Odometry currOdom, time_point currTime, bool isTurning) {
 
 // get duration between two points in seconds
 // let p1 be the newer of the time points and p2 be the later of the time points
-duration Recovery::getDuration(time_point p1, time_point p2) {
+duration Recovery::getDuration(time_point_steady p1, time_point_steady p2) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(p1 - p2);
     return seconds;
 }// getDuration()
@@ -73,7 +73,7 @@ RecoveryPoint Recovery::getPointToFollow() {
 }// getPointToFollow()
 
 // generate recovery path J turn
-void Recovery::makeRecoveryPath(Odometry const& currOdom, double longMeterInMinutes) {
+void Recovery::makeRecoveryPath(Odometry const& currOdom, const Rover & rover) {
     // currOdom: the rovers current odometry
     // TODO: add different recovery paths or put in config
 
@@ -87,16 +87,16 @@ void Recovery::makeRecoveryPath(Odometry const& currOdom, double longMeterInMinu
     // can change later for less magic numbers (TODO)
 
     // point that is straight back (rover relative)
-    RecoveryPoint back = makeRecoveryPoint(currOdom, mod(currOdom.bearing_deg + 180, 360), distP1, longMeterInMinutes, true);
+    RecoveryPoint back = makeRecoveryPoint(currOdom, mod(currOdom.bearing_deg + 180, 360), distP1, rover, true);
 
     // point that is further back and left (rover relative)
-    RecoveryPoint backLeft = makeRecoveryPoint(back.odom, mod(currOdom.bearing_deg + 200, 360), distP2, longMeterInMinutes, true);
+    RecoveryPoint backLeft = makeRecoveryPoint(back.odom, mod(currOdom.bearing_deg + 200, 360), distP2, rover, true);
 
     // another point that is back and further left (rover relative)
-    RecoveryPoint backLeftLeft = makeRecoveryPoint(backLeft.odom, mod(currOdom.bearing_deg + 240, 360), distP3, longMeterInMinutes, true);
+    RecoveryPoint backLeftLeft = makeRecoveryPoint(backLeft.odom, mod(currOdom.bearing_deg + 240, 360), distP3, rover, true);
 
     // another point that is back and even further left (rover relative)
-    RecoveryPoint backLeftLeftLeft = makeRecoveryPoint(backLeftLeft.odom, mod(currOdom.bearing_deg + 280, 360), distP4, longMeterInMinutes, true);
+    RecoveryPoint backLeftLeftLeft = makeRecoveryPoint(backLeftLeft.odom, mod(currOdom.bearing_deg + 280, 360), distP4, rover, true);
 
     mPath.clear();
 
@@ -110,7 +110,7 @@ void Recovery::makeRecoveryPath(Odometry const& currOdom, double longMeterInMinu
 
 // make recovery path J turn
 // (used when driving to target so that we drive back to the target later)
-void Recovery::makeTargetRecoveryPath(Odometry const& currOdom, Target const& target, double longMeterInMinutes) {
+void Recovery::makeTargetRecoveryPath(Odometry const& currOdom, Target const& target, const Rover &rover) {
 
     double distP1 = 3;
     double distP2 = 2;
@@ -121,16 +121,16 @@ void Recovery::makeTargetRecoveryPath(Odometry const& currOdom, Target const& ta
     // can change later for less magic numbers (TODO)
 
     // point that is straight back (rover relative)
-    RecoveryPoint back = makeRecoveryPoint(currOdom, mod(currOdom.bearing_deg + 180, 360), distP1, longMeterInMinutes, true);
+    RecoveryPoint back = makeRecoveryPoint(currOdom, mod(currOdom.bearing_deg + 180, 360), distP1, rover, true);
 
     // point that is further back and left (rover relative)
-    RecoveryPoint backLeft = makeRecoveryPoint(back.odom, mod(currOdom.bearing_deg + 200, 360), distP2, longMeterInMinutes, true);
+    RecoveryPoint backLeft = makeRecoveryPoint(back.odom, mod(currOdom.bearing_deg + 200, 360), distP2, rover, true);
 
     // another point that is back and further left (rover relative)
-    RecoveryPoint backLeftLeft = makeRecoveryPoint(backLeft.odom, mod(currOdom.bearing_deg + 240, 360), distP3, longMeterInMinutes, true);
+    RecoveryPoint backLeftLeft = makeRecoveryPoint(backLeft.odom, mod(currOdom.bearing_deg + 240, 360), distP3, rover, true);
 
     // another point that is back and even further left (rover relative)
-    RecoveryPoint backLeftLeftLeft = makeRecoveryPoint(backLeftLeft.odom, mod(currOdom.bearing_deg + 280, 360), distP4, longMeterInMinutes, true);
+    RecoveryPoint backLeftLeftLeft = makeRecoveryPoint(backLeftLeft.odom, mod(currOdom.bearing_deg + 280, 360), distP4, rover, true);
 
     // bearing to target
     double bearing = mod(currOdom.bearing_deg + target.bearing, 360);
@@ -140,12 +140,12 @@ void Recovery::makeTargetRecoveryPath(Odometry const& currOdom, Target const& ta
     double distR1 = 4;
     double distR2 = 1;
 
-    Odometry targetOdom = createOdom(currOdom, bearing, target.distance, longMeterInMinutes);
+    Odometry targetOdom = createOdom(currOdom, bearing, target.distance, rover.longMeterInMinutes());
 
-    RecoveryPoint targetRendevous1 = makeRecoveryPoint(targetOdom, mod(bearing - 90, 360), distR1, longMeterInMinutes, false);
+    RecoveryPoint targetRendevous1 = makeRecoveryPoint(targetOdom, mod(bearing - 90, 360), distR1, rover, false);
 
     // second target rendezvous point
-    RecoveryPoint targetRendevous2 = makeRecoveryPoint(targetOdom, mod(bearing - 90, 360), distR2, longMeterInMinutes, false);
+    RecoveryPoint targetRendevous2 = makeRecoveryPoint(targetOdom, mod(bearing - 90, 360), distR2, rover, false);
 
     mPath.clear();
 
@@ -195,9 +195,9 @@ void Recovery::completeCurrentRecoverypoint() {
 }// completeCurrentRecoverypoint()
 
 RecoveryPoint Recovery::makeRecoveryPoint(const Odometry& current, double absoluteBearing, double distance,
-                                          double longMeterInMinutes, bool backwards) {
+                                          const Rover & rover, bool backwards) {
 
-    Odometry odom = createOdom(current, absoluteBearing, distance, longMeterInMinutes);
+    Odometry odom = createOdom(current, absoluteBearing, distance, rover.longMeterInMinutes());
     RecoveryPoint point = {odom, backwards};
     return point;
 }// makeRecoveryPoint()

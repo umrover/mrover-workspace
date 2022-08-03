@@ -48,10 +48,12 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
+    // a timepoint but from the steady_clock
+    auto steady_now = std::chrono::steady_clock::now();
     // updating recovery object
     if (mRover->autonState().enabled && mRover->currentState() != NavState::Done) {
 
-        mRecovery->update(mRover->odometry(), now, mRover->isTurning());
+        mRecovery->update(mRover->odometry(), steady_now, mRover->isTurning());
 
         if (mRecovery->isStuck()) {
             mRecovery->setRecoveryState(true);
@@ -173,7 +175,7 @@ NavState StateMachine::executeDrive() {
         std::cout << "DriveWaypoints RECOVERY\n";
         // if no recovery path has been generated, generate one
         if (mRecovery->getRecoveryPath().empty()) {
-            mRecovery->makeRecoveryPath(mRover->odometry(), mRover->longMeterInMinutes());
+            mRecovery->makeRecoveryPath(mRover->odometry(), *mRover);
         }
         if (mRecovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)
@@ -271,6 +273,6 @@ double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }//getDtSeconds()
 
-std::unique_ptr<Recovery>& StateMachine::getRecovery() {
-    return mRecovery;
+Recovery* StateMachine::getRecovery() {
+    return mRecovery.get();
 }//getRecovery()

@@ -33,7 +33,7 @@ NavState SearchStateMachine::executeSearch() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
-    std::unique_ptr<Recovery>& recovery = sm->getRecovery();
+    Recovery* recovery = sm->getRecovery();
 
     Target const& leftTarget = env->getLeftTarget();
     Target const& rightTarget = env->getRightTarget();
@@ -68,7 +68,7 @@ NavState SearchStateMachine::executeSearch() {
 
         // if no recovery path has been generated, generate one
         if (recovery->getRecoveryPath().empty()) {
-            recovery->makeRecoveryPath(rover->odometry(), rover->longMeterInMinutes());
+            recovery->makeRecoveryPath(rover->odometry(), *rover);
         }
         if (recovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)
@@ -121,7 +121,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
-    std::unique_ptr<Recovery>& recovery = sm->getRecovery();
+    Recovery* recovery = sm->getRecovery();
 
     double dt = sm->getDtSeconds();
     Waypoint lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
@@ -177,7 +177,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
         // if no recovery path has been generated, generate one
         if (recovery->getRecoveryPath().empty()) {
-            recovery->makeTargetRecoveryPath(rover->odometry(), leftTarget, rover->longMeterInMinutes());
+            recovery->makeTargetRecoveryPath(rover->odometry(), leftTarget, *rover);
         }
         if (recovery->getPointToFollow().backwards) {
             // drive to first point in recovery path (special drive backwards function)

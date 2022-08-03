@@ -11,12 +11,12 @@
 
 using Eigen::Vector2d;
 using namespace rover_msgs;
-using duration = std::chrono::duration<int>;
-using time_point = std::chrono::high_resolution_clock::time_point;
+using duration =  std::chrono::duration<long long>;
+using time_point_steady = std::chrono::steady_clock::time_point;
 
 struct OdomTimePoint {
     Odometry odom;
-    time_point time;
+    time_point_steady time;
 };
 
 struct RecoveryPoint {
@@ -37,11 +37,11 @@ public:
 
     bool isStuck();
 
-    void update(Odometry currOdom, time_point currTime, bool isTurning);
+    void update(Odometry currOdom, time_point_steady currTime, bool isTurning);
 
-    void makeRecoveryPath(const Odometry & currOdom, double longMeterInMinutes);
+    void makeRecoveryPath(const Odometry & currOdom, const Rover & rover);
 
-    void makeTargetRecoveryPath(const Odometry & currOdom, Target const& target, double longMeterInMinutes);
+    void makeTargetRecoveryPath(const Odometry & currOdom, Target const& target, const Rover & rover);
 
     void reset();
 
@@ -60,10 +60,10 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
 
-    duration getDuration(time_point p1, time_point p2);
+    duration getDuration(time_point_steady p1, time_point_steady p2);
 
     RecoveryPoint makeRecoveryPoint(const Odometry& current, double absoluteBearing, double distance,
-                                    double longMeterInMinutes, bool backwards);
+                                    const Rover & rover, bool backwards);
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -100,5 +100,5 @@ private:
 
     // mark the start time of a turn
     // if __ time passes and rover is still turning attempt recovery
-    time_point turnStartTime;
+    time_point_steady turnStartTime;
 };

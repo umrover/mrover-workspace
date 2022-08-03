@@ -15,8 +15,9 @@
 
 using namespace rover_msgs;
 using namespace std::chrono_literals;
-using duration =  std::chrono::duration<int>;
+using duration =  std::chrono::duration<long long>;
 using time_point = std::chrono::high_resolution_clock::time_point;
+using time_point_steady = std::chrono::steady_clock::time_point;
 
 constexpr auto LOOP_DURATION = 0.01s;
 
@@ -45,7 +46,7 @@ public:
 
     double getDtSeconds();
 
-    std::unique_ptr<Recovery>& getRecovery();
+    Recovery* getRecovery();
 
     /*************************************************************************/
     /* Public Member Variables */
