@@ -36,7 +36,7 @@
   debug="on"
   optimize="off"
   destdir="build"
-  source="1.5">
+  source="1.6">
 </javac>
 </target>
 
