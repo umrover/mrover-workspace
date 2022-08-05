@@ -3,7 +3,8 @@ import os
 import zipfile
 import json
 
-
+#If System has issues with number of file watcher when using GUI with downloaded map 
+#Run "sudo sysctl -w fs.inotify.max_user_watches=100000"
 def main():
     if not os.path.exists("base_station/download_map/src/keys.json"):
         out = {"accessKey": "", "secretKey": ""}

@@ -12,6 +12,12 @@
       </div>
     </div>
 
+    <div class="box map light-bg">
+      <SARoverMap v-bind:odom="odom"></SARoverMap>
+    </div>
+    <div class="box waypoint-editor light-bg">
+      <SAWaypointEditor></SAWaypointEditor>
+    </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:numCams="2" v-bind:mission="'Science'" v-bind:channel="'/cameras_control'"/>
       <GimbalControls/>
@@ -39,6 +45,8 @@ import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import DriveControls from './DriveControls.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import SARoverMap from './SARoverMap.vue'
+import SAWaypointEditor from './SAWaypointEditor.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import ScoopUV from './ScoopUV.vue'
 import SAArm from './SAArm.vue'
@@ -67,7 +75,16 @@ export default {
         white_led: 5,
         uv_bulb: 6,
         raman_laser: 7
-      }
+      },
+
+      odom: {
+        latitude_deg: 38,
+        latitude_min: 24.38226,
+        longitude_deg: -110,
+        longitude_min: -47.51724,
+        bearing_deg: 0,
+        speed: 0
+      },
     }
   },
 
@@ -101,7 +118,12 @@ export default {
         this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
-      (msg) => { },
+      (msg) => { 
+        if (msg.topic === '/odometry') {
+          this.odom = msg.message
+        }
+      },
+        
       // Subscriptions
       [
         {'topic': '/test_enable', 'type': 'TestEnable'},
@@ -114,7 +136,8 @@ export default {
         {'topic': '/fuse_data', 'type': 'FuseData'},
         {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'Enable'},
         {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
-        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/odometry', 'type': 'Odometry'}
       ]
     )
   },
@@ -127,7 +150,9 @@ export default {
     ScoopUV,
     SAArm,
     PDBFuse,
-    GimbalControls
+    GimbalControls,
+    SARoverMap,
+    SAWaypointEditor
   }
 }
 </script>
@@ -138,8 +163,9 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: auto auto;
-        grid-template-rows: 60px auto auto auto auto;
-        grid-template-areas: "header header" 
+        grid-template-rows: 60px 600px auto auto auto auto;
+        grid-template-areas: "header header"
+                             "map waypoint-editor" 
                              "cameras drivecontrols" 
                              "cameras scoopUV" 
                              "SAArm PDBFuse"
@@ -195,6 +221,13 @@ export default {
       grid-area: drivecontrols;
     }
 
+    .map{
+      grid-area: map;
+    }
+
+    .waypoint-editor{
+      grid-area: waypoint-editor;
+    }
     .scoopUV {
       grid-area: scoopUV;
     }
