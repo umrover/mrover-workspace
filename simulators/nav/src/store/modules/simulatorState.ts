@@ -72,6 +72,7 @@ export const state:SimulatorState = {
   simSettings: {
     simulateLoc: true,
     simulatePercep: true,
+    simulateAutonDriveControl: true,
     enableLCM: true,
     enableFOVView: false,
     enableProjectedPoints: false,
@@ -129,6 +130,9 @@ const getters = {
 
   simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
 
+  simulateAutonDriveControl:
+  (simState:SimulatorState):boolean => simState.simSettings.simulateAutonDriveControl,
+
   noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
 
   noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
@@ -182,6 +186,10 @@ const mutations = {
 
   flipSimulatePercep: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.simulatePercep = onOff;
+  },
+
+  flipSimulateAutonDriveControl: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.simulateAutonDriveControl = onOff;
   },
 
   setNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
