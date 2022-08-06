@@ -944,7 +944,7 @@ void ScienceArm::send_kill_cmd() {
     lcm_.publish("/sa_open_loop_cmd", &sa_cmd);
 
     FootCmd foot_cmd;
-    foot_cmd.microscope_triad = 0.0;
-    foot_cmd.scoop = 0.0;
+    foot_cmd.auger_spin = 0.0;
+    foot_cmd.auger_raise = 0.0;
     lcm_.publish("/foot_open_loop_cmd", &foot_cmd);
 }

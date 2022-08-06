@@ -265,8 +265,8 @@ class ArmControl:
         lcm_.publish('/sa_open_loop_cmd', sa_motor.encode())
 
         foot_msg = FootCmd()
-        foot_msg.scoop = 0
-        foot_msg.microscope_triad = 0
+        foot_msg.auger_raise = 0
+        foot_msg.auger_spin = 0
         lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
 
     def ra_calibration_callback(self, channel, msg):

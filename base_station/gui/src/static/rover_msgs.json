@@ -349,11 +349,11 @@
     "FootCmd": [
         [
             "double",
-            "microscope_triad"
+            "auger_raise"
         ],
         [
             "double",
-            "scoop"
+            "auger_spin"
         ]
     ],
     "FuseData": [
