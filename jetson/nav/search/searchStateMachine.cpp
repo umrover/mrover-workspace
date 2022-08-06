@@ -52,8 +52,10 @@ NavState SearchStateMachine::executeSearch() {
         }
     } else {
         // Either target works
-        bool isWantedTarget = (lastWaypoint.id == leftTarget.id && leftTarget.id >= 0) ||
-                                (lastWaypoint.id == rightTarget.id && rightTarget.id >= 0);
+        //bool isWantedTarget = (lastWaypoint.id == leftTarget.id && leftTarget.id >= 0) ||
+        //                        (lastWaypoint.id == rightTarget.id && rightTarget.id >= 0);
+        //for CIRC targets can be any id
+        bool isWantedTarget = (leftTarget.id >= 0 || rightTarget.id >= 0);
         if (isWantedTarget) {
             return NavState::DriveToTarget;
         }
@@ -120,10 +122,11 @@ NavState SearchStateMachine::executeDriveToTarget() {
         }
     } else {
         //not gate (AR tag)
-        if (leftTarget.id == lastWaypoint.id) {
+        //for CIRC AR tag can be any id
+        if (leftTarget.id >= 0) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
-        } else if (rightTarget.id == lastWaypoint.id){
+        } else if (rightTarget.id >= 0){
             distance = rightTarget.distance;
             bearing = rightTarget.bearing + currentBearing;
         }
