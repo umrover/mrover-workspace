@@ -38,6 +38,13 @@
               @clicked="flipSimulatePercep(!simulatePercep)"
             />
           </div>
+          <div class="setting">
+            <Checkbox
+              :on="simulateAutonDriveControl"
+              name="Simulate Auton Drive"
+              @clicked="flipSimulateAutonDriveControl(!simulateAutonDriveControl)"
+            />
+          </div>
         </div>
         <div class="columnRight">
           <div class="container">
@@ -147,6 +154,9 @@ export default class SimSettings extends Vue {
   private readonly simulatePercep!:boolean;
 
   @Getter
+  private readonly simulateAutonDriveControl!:boolean;
+
+  @Getter
   private readonly noisePercent!:number;
 
   @Getter
@@ -185,6 +195,9 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipSimulateAutonDriveControl!:(onOff:boolean)=>void;
 
   @Mutation
   private readonly setNoisePercent!:(newNoisePercent:number)=>void;
