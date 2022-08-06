@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import autonomy from './modules/autonomy'
 import controls from './modules/controls'
 import erd from './modules/erd'
+import sa from './modules/sa'
 
 Vue.use(Vuex)
 
@@ -12,7 +13,8 @@ export default new Vuex.Store({
   modules: {
     autonomy,
     controls,
-    erd
+    erd,
+    sa
   },
 
   strict: debug

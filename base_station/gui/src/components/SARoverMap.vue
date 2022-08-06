@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <!-- Map goes here -->
-    <l-map ref="map" class="map" :zoom="15" :center="center">
+    <l-map ref="map" class="map" :zoom="19" :center="center" v-on:click="getClickedLatLon($event)">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
@@ -32,7 +32,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LTooltip, LControlScale } from 'vue2-leaflet'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import L from '../leaflet-rotatedmarker.js'
 
 const MAX_ODOM_COUNT = 1000
@@ -73,8 +73,23 @@ export default {
     })
   },
 
+  methods: {
+    getClickedLatLon: function (e) {
+      this.setClickPoint(
+          { 
+            lat: e.latlng.lat,
+            lon: e.latlng.lng
+          }
+        )
+    },
+
+    ...mapMutations('sa',{
+      setClickPoint: 'setClickPoint',
+    }),
+  },
+
   computed: {
-    ...mapGetters('erd', {
+    ...mapGetters('sa', {
       waypointList: 'waypointList',
       highlightedWaypoint: "highlightedWaypoint",
     }),

@@ -56,6 +56,7 @@ void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_pt
         // TODO: common logic, refactor out
         if (isRightValid) {
             Odometry postOdom = createOdom(rover->odometry(), currentBearing + rightTarget.bearing, rightTarget.distance, rover);
+            //for CIRC targets can be of any id
             if (rightTarget.id == mBaseGateId) {
                 mPostOneLat.push(postOdom.latitude_deg + postOdom.latitude_min / 60.0);
                 mPostOneLong.push(postOdom.longitude_deg + postOdom.longitude_min / 60.0);

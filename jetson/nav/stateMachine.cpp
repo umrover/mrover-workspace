@@ -164,7 +164,7 @@ NavState StateMachine::executeDrive() {
         }
     }
     double distanceToWaypoint = estimateDistance(currentWaypoint.odom, mRover->odometry());
-    if (mEnv->hasPostOneLocation() && distanceToWaypoint <= mConfig["navThresholds"]["waypointRadius"].GetDouble()) {
+    if (mEnv->getLeftTarget().id != -1 && distanceToWaypoint <= mConfig["navThresholds"]["waypointRadius"].GetDouble()) {
         mCourseProgress->completeCurrentWaypoint();
         return NavState::BeginSearch;
     }
