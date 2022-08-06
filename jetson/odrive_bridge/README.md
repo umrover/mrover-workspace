@@ -2,13 +2,12 @@ Code to control the Drive Train Motors using the Odrive Brushless Motor Controll
 ----
 
 ### About
-For the 2020 Mars Rover we used two onboard odrive motor controllers to drive the wheels. Odrive_bridge is the program \
+For the 2022 Mars Rover we used three onboard odrive motor controllers to drive the wheels. Odrive_bridge is the program \
 responsible for handling odrive LCM messages recieved from the base station. Upon connecting to the base station \
 the program begins running automatically. 
 
-The program can handle velocity and state LCM commands. The states of the odrive are **DisconnectedState**,\
-**DisarmedState**, **ArmedState**, **CalibrateState**, and **ErrorState.** \
-From the base station, velocity commands  and commands to Arm, Disarm, and Calibrate can be sent, as well as requests to view velocity estimate and current draw data. 
+The program can handle velocity and state LCM commands. The states of the odrive are **DisconnectedState**, **ArmedState**, and **ErrorState.** \
+From the base station, velocity commands and commands to Arm can be sent, as well as requests to view velocity estimate and current draw data. 
 
 When the odrive is Armed it controlls the speed of the motors in its closed-loop velocity control mode, getting data about 
 the motors' current speed via the encoders integrated into the controller. 
@@ -44,7 +43,6 @@ Subscribers: onboard/teleop
 
 #### Watchdog Timeout Period 
 1 second
-
 
 
 #### States
@@ -88,7 +86,7 @@ our usage of it. Six 47nF capacitors will have to be soldered on to the odrive a
 [this](https://docs.odriverobotics.com/#downloading-and-installing-tools) website on the hoverboard guide page. To activate odrivetool
  follow the steps below. You can do this on the base station or the jetson. On the jetson make sure the \
  odrive_bridge program on the jetson is [deactivated](Debugging). \
-`$ ssh mrover@10.1.0.1` \
+`$ ssh mrover@10.1.0.2` \
 `$ mrover` \
 `$ cd ~/.mrover` \
 `$ source build_env/bin/activate` \
@@ -118,9 +116,9 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="0d32", GROUP="mro
 </font>
 
 #### Calibrating The Odrive 
-<font size="4"> Since the CalibrateState has not been tested, it must be done manually. Once again ssh into the jetson and go to the .mrover folder 
+<font size="4"> Calibration must be done manually. Once again ssh into the jetson and go to the .mrover folder 
 and start running odrivetool. \
-`$ ssh mrover@10.1.0.1` \
+`$ ssh mrover@10.1.0.2` \
 `$ mrover` \
 `$ cd ~/.mrover` \
 `$ source build_env/bin/activate` \
@@ -147,23 +145,18 @@ The odrives should automatically connect. Using the odrvX.axisY (0 or 1 dependin
 ### Debugging (on the jetson)
 Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
 `$ cd ~/mrover-workspace` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@0.service ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@1.service ` \
-To restart the programs manually type \
-`$ start0 ` \
-`$ start1 ` \
-If these are unrecognized, type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 0 BACK ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 1 FRONT ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-jetson-odrive@front.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-jetson-odrive@middle.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-jetson-odrive@back.service ` \
+To restart the programs, type \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@front.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@middle.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@back.service ` \
 By default the odrives are armed \
 In order to see the joystick outputs type \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "/drive_vel_data"` \
-In order to Arm/Disarm the odrives manually type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/drive_state_cmd" "{'type': 'DriveStateCmd', 'controller': X, 'state': Y }" `\
-X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
-(not usable at the moment). \
 In order to see if there are any odrive errors, ssh into the jetson \
-`$ ssh mrover@10.1.0.1` \
+`$ ssh mrover@10.1.0.2` \
 `$ mrover` \
 The terminal should now display that you are in mrover@mrover-jetson  \
 `$ cd ~/.mrover` \
@@ -206,13 +199,13 @@ device. \
 
 #### Suddenly No Resposne 
 <font size="4">  In this case, stop and restart the odrive program. The problem is still being investigated \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR.service `  \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start rover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR.service `  </font>
+  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@{front/middle/back}.service `  </font>
   
 #### Unknown ACK and Failure 
 <font size="4">  In this case, stop and restart the odrive program. The problem is also still being investigated \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  </font>
+  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@front.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@middle.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-odrive@back.service ` \  </font>
   
 #### No LCM Tools Echo/Send 
 <font size="4"> `$ ./jarvis build lcm_tools/{echo|send}` </font>
@@ -225,22 +218,23 @@ device. \
 
 #### Nothing Seems To Be Running
 <font size="4"> There have been recent issues with the teleop services not starting. Type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl status service.mrover-onboard-teleop` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl status rover-jetson-teleop.service` \
 If the service is not running, type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-teleop`
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl restart rover-jetson-teleop.service ` \
 
 #### Other Errors
 <font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
 
 ### ToDo 
-As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
 
 - [x] Validate this guide
 - [x] Implement watchdog timer
 - [x] Add Off Nominal Behavior Section
 - [x] Make functional for 2021
+- [ ] Update README.md
 - [ ] Move odrive IDs into config
+- [ ] Fix USB issues along with ACK, requiring restart of program
 
 
 ### Notes
-The odrive code has been modified to work for 3 odrives on the 2021 rover for SAR. We do not plan on using odrives for URC.
+The odrive code has been modified to work for 3 odrives on the 2022 rover for CIRC.
